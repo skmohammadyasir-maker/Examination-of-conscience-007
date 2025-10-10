@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Black Force 007 — Quiz</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title-block">
+        <div class="badge">007</div>
+        <div>
+          <h1>Black Force 007</h1>
+          <p class="subtitle">সমাজ সচেতনতা — Quiz Game</p>
+        </div>
+      </div>
+
+      <div class="status-block">
+        <div class="stat">Score <span id="score">0</span></div>
+        <div class="stat">Correct <span id="correctCount">0</span></div>
+        <div class="stat">Wrong <span id="wrongCount">0</span></div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <div class="card-top">
+          <div class="progress">প্রশ্ন <span id="qIndex">1</span>/<span id="qTotal">50</span></div>
+          <div class="controls">
+            <label for="timeSelect">সময়/প্রশ্ন</label>
+            <select id="timeSelect">
+              <option value="15">15s</option>
+              <option value="20" selected>20s</option>
+            </select>
+            <button id="pauseBtn" class="small-btn">Pause</button>
+            <button id="skipBtn" class="small-btn">Skip</button>
+          </div>
+        </div>
+
+        <div id="question" class="question" aria-live="polite">প্রশ্ন এখানে দেখানো হবে</div>
+
+        <div id="options" class="options" role="list"></div>
+
+        <div class="footer">
+          <div class="timer">Time left: <span id="timeLeft">20</span>s</div>
+          <div class="extra">Streak: <span id="streak">0</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Big feedback overlay -->
+  <div id="bigMark" class="big-mark" aria-hidden="true"></div>
+
+  <!-- Result modal -->
+  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h2>আপনার ফলাফল</h2>
+      <p>Score: <strong id="finalScore">0</strong></p>
+      <p>Correct: <strong id="finalCorrect">0</strong></p>
+      <p>Wrong: <strong id="finalWrong">0</strong></p>
+      <div id="educationalMsg" class="edu-msg"></div>
+      <div class="modal-actions">
+        <button id="replayBtn" class="btn">আবার খেলুন (Shuffle)</button>
+        <button id="reviewBtn" class="btn alt">ভুল প্রশ্ন দেখুন</button>
+        <button id="closeModal" class="btn alt">বন্ধ</button>
+      </div>
+
+      <div id="reviewList" class="review-list hidden">
+        <h3>আপনি ভুল করেছেন — পুনরালোচনা</h3>
+        <ul id="reviewUl"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
