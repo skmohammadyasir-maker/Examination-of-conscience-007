@@ -38,17 +38,88 @@
 
     /* Options grid */
     .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .option-btn{padding:14px;border-radius:12px;border:none;font-weight:800;font-size:15px;color:#fff;cursor:pointer;position:relative;transition:transform .15s ease, box-shadow .15s ease}
+    .option-btn{padding:14px;border-radius:12px;border:none;font-weight:800;font-size:15px;color:#fff;cursor:pointer;position:relative;transition:transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s ease, filter .18s ease}
     .option-btn:active{transform:scale(.99)}
     .option-btn:nth-child(1){background:var(--opt1)}
     .option-btn:nth-child(2){background:var(--opt2)}
     .option-btn:nth-child(3){background:var(--opt3)}
     .option-btn:nth-child(4){background:var(--opt4)}
     .option-btn.disabled{opacity:.6;cursor:not-allowed}
-    .option-correct{box-shadow:0 0 18px rgba(46,204,113,.25);border:2px solid var(--good)}
-    .option-correct::after{content:"✅";position:absolute;right:8px;top:8px;font-size:18px}
-    .option-wrong{box-shadow:0 0 18px rgba(231,76,60,.25);border:2px solid var(--bad)}
-    .option-wrong::after{content:"❌";position:absolute;right:8px;top:8px;font-size:18px}
+
+    /* --- UPDATED: stronger, larger highlight for correct / wrong --- */
+    /* make correct very prominent: larger border, glow, slight scale, background tint, bold badge */
+    .option-correct{
+      border:3px solid var(--good);
+      box-shadow:0 8px 30px rgba(46,204,113,0.25), inset 0 0 30px rgba(46,204,113,0.06);
+      transform: scale(1.03);
+      z-index:2;
+      position:relative;
+      overflow:visible;
+      animation: correctPulse 1s ease;
+      filter: saturate(1.15);
+      background-image: linear-gradient(90deg, rgba(46,204,113,0.12), rgba(0,0,0,0.06));
+    }
+    .option-correct::after{
+      content:"✅";
+      position:absolute;
+      right:10px;
+      top:8px;
+      font-size:22px;
+      background: rgba(0,0,0,0.25);
+      padding:4px 6px;
+      border-radius:6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    }
+    @keyframes correctPulse{
+      0%{box-shadow:0 6px 20px rgba(46,204,113,0.18); transform:scale(1.02);}
+      50%{box-shadow:0 14px 40px rgba(46,204,113,0.32); transform:scale(1.05);}
+      100%{box-shadow:0 8px 30px rgba(46,204,113,0.25); transform:scale(1.03);}
+    }
+
+    /* make wrong very prominent: red glow, thicker border, shake + grow a bit */
+    .option-wrong{
+      border:3px solid var(--bad);
+      box-shadow:0 10px 40px rgba(231,76,60,0.28), inset 0 0 30px rgba(231,76,60,0.06);
+      transform: scale(1.03);
+      z-index:2;
+      position:relative;
+      overflow:visible;
+      animation: wrongShake 0.6s cubic-bezier(.2,.6,.2,1);
+      filter: saturate(1.15);
+      background-image: linear-gradient(90deg, rgba(231,76,60,0.08), rgba(0,0,0,0.06));
+    }
+    .option-wrong::after{
+      content:"❌";
+      position:absolute;
+      right:10px;
+      top:8px;
+      font-size:22px;
+      background: rgba(0,0,0,0.25);
+      padding:4px 6px;
+      border-radius:6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    }
+    @keyframes wrongShake{
+      0%{transform:translateX(0) scale(1.02);}
+      25%{transform:translateX(-6px) scale(1.03);}
+      50%{transform:translateX(6px) scale(1.05);}
+      75%{transform:translateX(-4px) scale(1.04);}
+      100%{transform:translateX(0) scale(1.03);}
+    }
+
+    /* also emphasize text slightly for highlighted options */
+    .option-correct, .option-wrong{
+      font-size:16px;
+      letter-spacing:0.2px;
+      color:#fff;
+    }
+
+    /* If your JS toggles disabled state, keep it readable */
+    .option-btn.disabled.option-correct,
+    .option-btn.disabled.option-wrong{
+      opacity:1; /* keep highlight visible even if disabled */
+      cursor:default;
+    }
 
     /* Footer */
     .footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
@@ -74,6 +145,7 @@
       .options{grid-template-columns:1fr}
       .question{font-size:18px}
       .big-mark{font-size:64px}
+      .option-correct::after, .option-wrong::after{font-size:18px; right:8px; top:6px}
     }
   </style>
 </head>
