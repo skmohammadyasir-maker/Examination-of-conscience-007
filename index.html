@@ -2,9 +2,176 @@
 <html lang="bn">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
   <title>Black Force 007 — Quiz</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* --- Responsive & modern UI tweaks --- */
+    body {
+      margin: 0;
+      font-family: "Noto Sans Bengali", sans-serif;
+      background: radial-gradient(circle at top, #0a0a0a, #1b1b1b);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app {
+      width: 95%;
+      max-width: 480px;
+      margin: auto;
+    }
+
+    .topbar {
+      background: #111;
+      border-radius: 16px;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .title-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      background: crimson;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: #ccc;
+      margin: 0;
+    }
+
+    .status-block {
+      text-align: right;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .card {
+      background: #1d1d1d;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    select, button.small-btn {
+      background: #333;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      padding: 5px 10px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .options button {
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 1rem;
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .options button:hover {
+      background: #333;
+      transform: scale(1.02);
+    }
+
+    .options button.correct { background: #0f8a0f !important; }
+    .options button.wrong { background: #b02020 !important; }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      font-size: 0.9rem;
+    }
+
+    .big-mark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 5rem;
+      font-weight: bold;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 1000;
+    }
+
+    .big-mark.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Mobile Friendly Modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #202020;
+      border-radius: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .btn {
+      background: crimson;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      padding: 10px 15px;
+      margin: 8px;
+    }
+
+    .btn.alt {
+      background: #555;
+    }
+  </style>
 </head>
 <body>
   <div class="app">
@@ -75,7 +242,26 @@
     </div>
   </div>
 
+  <!-- --- Sounds --- -->
+  <audio id="sound-correct" src="sounds/correct.mp3" preload="auto"></audio>
+  <audio id="sound-wrong" src="sounds/wrong.mp3" preload="auto"></audio>
+  <audio id="sound-timeup" src="sounds/timeup.mp3" preload="auto"></audio>
+  <audio id="sound-win" src="sounds/win.mp3" preload="auto"></audio>
+
   <script src="questions.js"></script>
   <script src="app.js"></script>
+  <script>
+    // --- Simple sound helper ---
+    function playSound(id) {
+      const audio = document.getElementById(id);
+      if (audio) { audio.currentTime = 0; audio.play(); }
+    }
+
+    // Example usage hooks (attach these in your app.js logic)
+    document.addEventListener("quiz-correct", ()=>playSound("sound-correct"));
+    document.addEventListener("quiz-wrong", ()=>playSound("sound-wrong"));
+    document.addEventListener("quiz-timeup", ()=>playSound("sound-timeup"));
+    document.addEventListener("quiz-win", ()=>playSound("sound-win"));
+  </script>
 </body>
 </html>
