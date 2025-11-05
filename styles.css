@@ -223,3 +223,22 @@
   <script src="app.js"></script>
 </body>
 </html>
+.fade { animation: fadeIn 0.4s ease-in; }
+.bounce { animation: bounceIn 0.4s ease-in; }
+.pulse { animation: pulse 0.4s ease-in-out; }
+.shake { animation: shake 0.4s ease-in-out; }
+
+@keyframes fadeIn { from{opacity:0;transform:scale(0.95);} to{opacity:1;transform:scale(1);} }
+@keyframes bounceIn { 0%{transform:scale(0.8);} 60%{transform:scale(1.05);} 100%{transform:scale(1);} }
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+.timer-ring {
+  position:absolute; 
+  top:0; left:0; right:0; bottom:0;
+  margin:auto;
+  width:40px; height:40px;
+  border-radius:50%;
+  background:conic-gradient(#00ff66 0deg, #333 0deg);
+  transition:background 0.3s linear;
+}
