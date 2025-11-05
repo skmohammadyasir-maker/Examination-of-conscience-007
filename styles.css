@@ -1,69 +1,153 @@
-:root{
-  --bg1:#071126; --bg2:#0f2b3a; --card:#0b1220; --accent:#ffcc33;
-  --muted:#9aa7b2; --good:#2ecc71; --bad:#e74c3c;
-  --opt1:#1abc9c; --opt2:#3498db; --opt3:#9b59b6; --opt4:#e67e22;
-  --glass: rgba(255,255,255,0.04);
-}
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Black Force 007 — Quiz</title>
 
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:"Noto Sans Bengali","Poppins",sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf3ff}
-.app{max-width:780px;margin:12px auto;padding:8px}
+  <style>
+    :root{
+      --bg1:#071126; --bg2:#0f2b3a; --card:#0b1220; --accent:#ffcc33;
+      --muted:#9aa7b2; --good:#2ecc71; --bad:#e74c3c;
+      --opt1:#1abc9c; --opt2:#3498db; --opt3:#9b59b6; --opt4:#e67e22;
+      --glass: rgba(255,255,255,0.04);
+    }
 
-/* Topbar */
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));gap:12px}
-.title-block{display:flex;gap:12px;align-items:center}
-.badge{width:56px;height:56px;border-radius:10px;background:#000;color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900}
-.subtitle{color:var(--muted);margin:0;font-size:13px}
-.status-block{display:flex;gap:10px;align-items:center}
-.stat{background:var(--glass);padding:8px 10px;border-radius:8px;font-weight:700;color:var(--accent);}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Noto Sans Bengali","Poppins",sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf3ff}
+    .app{max-width:780px;margin:12px auto;padding:8px}
 
-/* Main card */
-.main{margin-top:14px}
-.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
-.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.progress{font-weight:700}
-.controls{display:flex;gap:8px;align-items:center}
-.small-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:6px 8px;border-radius:8px;cursor:pointer}
+    /* Topbar */
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));gap:12px}
+    .title-block{display:flex;gap:12px;align-items:center}
+    .badge{width:56px;height:56px;border-radius:10px;background:#000;color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:900}
+    .subtitle{color:var(--muted);margin:0;font-size:13px}
+    .status-block{display:flex;gap:10px;align-items:center}
+    .stat{background:var(--glass);padding:8px 10px;border-radius:8px;font-weight:700;color:var(--accent);}
 
-/* Question */
-.question{font-size:20px;font-weight:800;margin-bottom:14px;min-height:56px}
+    /* Main card */
+    .main{margin-top:14px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+    .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    .progress{font-weight:700}
+    .controls{display:flex;gap:8px;align-items:center}
+    .small-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:6px 8px;border-radius:8px;cursor:pointer}
 
-/* Options grid */
-.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.option-btn{padding:14px;border-radius:12px;border:none;font-weight:800;font-size:15px;color:#fff;cursor:pointer;position:relative;transition:transform .15s ease, box-shadow .15s ease}
-.option-btn:active{transform:scale(.99)}
-.option-btn:nth-child(1){background:var(--opt1)}
-.option-btn:nth-child(2){background:var(--opt2)}
-.option-btn:nth-child(3){background:var(--opt3)}
-.option-btn:nth-child(4){background:var(--opt4)}
-.option-btn.disabled{opacity:.6;cursor:not-allowed}
-.option-correct{box-shadow:0 0 18px rgba(46,204,113,.25);border:2px solid var(--good)}
-.option-correct::after{content:"✅";position:absolute;right:8px;top:8px;font-size:18px}
-.option-wrong{box-shadow:0 0 18px rgba(231,76,60,.25);border:2px solid var(--bad)}
-.option-wrong::after{content:"❌";position:absolute;right:8px;top:8px;font-size:18px}
+    /* Question */
+    .question{font-size:20px;font-weight:800;margin-bottom:14px;min-height:56px}
 
-/* Footer */
-.footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.timer, .extra{font-weight:700}
+    /* Options grid */
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .option-btn{padding:14px;border-radius:12px;border:none;font-weight:800;font-size:15px;color:#fff;cursor:pointer;position:relative;transition:transform .15s ease, box-shadow .15s ease}
+    .option-btn:active{transform:scale(.99)}
+    .option-btn:nth-child(1){background:var(--opt1)}
+    .option-btn:nth-child(2){background:var(--opt2)}
+    .option-btn:nth-child(3){background:var(--opt3)}
+    .option-btn:nth-child(4){background:var(--opt4)}
+    .option-btn.disabled{opacity:.6;cursor:not-allowed}
+    .option-correct{box-shadow:0 0 18px rgba(46,204,113,.25);border:2px solid var(--good)}
+    .option-correct::after{content:"✅";position:absolute;right:8px;top:8px;font-size:18px}
+    .option-wrong{box-shadow:0 0 18px rgba(231,76,60,.25);border:2px solid var(--bad)}
+    .option-wrong::after{content:"❌";position:absolute;right:8px;top:8px;font-size:18px}
 
-/* Big mark overlay */
-.big-mark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:96px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s ease, transform .3s ease}
-.big-mark.show{opacity:1;transform:translate(-50%,-50%) scale(1.02)}
+    /* Footer */
+    .footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+    .timer, .extra{font-weight:700}
 
-/* Modal */
-.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:1000}
-.modal.hidden{display:none}
-.modal-content{background:var(--card);padding:18px;border-radius:12px;color:#eaf3ff;min-width:300px;box-shadow:0 10px 40px rgba(0,0,0,.7)}
-.modal-actions{display:flex;gap:8px;justify-content:center;margin-top:12px}
-.btn{background:var(--accent);border:none;color:#091217;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:800}
-.btn.alt{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--muted)}
-.edu-msg{margin-top:8px;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:var(--muted)}
-.review-list{margin-top:10px}
-.review-list ul{max-height:200px;overflow:auto;padding-left:18px}
+    /* Big mark overlay */
+    .big-mark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:96px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s ease, transform .3s ease}
+    .big-mark.show{opacity:1;transform:translate(-50%,-50%) scale(1.02)}
 
-/* Responsive */
-@media(max-width:600px){
-  .options{grid-template-columns:1fr}
-  .question{font-size:18px}
-  .big-mark{font-size:64px}
-}
+    /* Modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:1000}
+    .modal.hidden{display:none}
+    .modal-content{background:var(--card);padding:18px;border-radius:12px;color:#eaf3ff;min-width:300px;box-shadow:0 10px 40px rgba(0,0,0,.7)}
+    .modal-actions{display:flex;gap:8px;justify-content:center;margin-top:12px}
+    .btn{background:var(--accent);border:none;color:#091217;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:800}
+    .btn.alt{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--muted)}
+    .edu-msg{margin-top:8px;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:var(--muted)}
+    .review-list{margin-top:10px}
+    .review-list ul{max-height:200px;overflow:auto;padding-left:18px}
+
+    /* Responsive */
+    @media(max-width:600px){
+      .options{grid-template-columns:1fr}
+      .question{font-size:18px}
+      .big-mark{font-size:64px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title-block">
+        <div class="badge">007</div>
+        <div>
+          <h1>Black Force 007</h1>
+          <p class="subtitle">সমাজ সচেতনতা — Quiz Game</p>
+        </div>
+      </div>
+
+      <div class="status-block">
+        <div class="stat">Score <span id="score">0</span></div>
+        <div class="stat">Correct <span id="correctCount">0</span></div>
+        <div class="stat">Wrong <span id="wrongCount">0</span></div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <div class="card-top">
+          <div class="progress">প্রশ্ন <span id="qIndex">1</span>/<span id="qTotal">50</span></div>
+          <div class="controls">
+            <label for="timeSelect">সময়/প্রশ্ন</label>
+            <select id="timeSelect">
+              <option value="15">15s</option>
+              <option value="20" selected>20s</option>
+            </select>
+            <button id="pauseBtn" class="small-btn">Pause</button>
+            <button id="skipBtn" class="small-btn">Skip</button>
+          </div>
+        </div>
+
+        <div id="question" class="question" aria-live="polite">প্রশ্ন এখানে দেখানো হবে</div>
+
+        <div id="options" class="options" role="list"></div>
+
+        <div class="footer">
+          <div class="timer">Time left: <span id="timeLeft">20</span>s</div>
+          <div class="extra">Streak: <span id="streak">0</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Big feedback overlay -->
+  <div id="bigMark" class="big-mark" aria-hidden="true"></div>
+
+  <!-- Result modal -->
+  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h2>আপনার ফলাফল</h2>
+      <p>Score: <strong id="finalScore">0</strong></p>
+      <p>Correct: <strong id="finalCorrect">0</strong></p>
+      <p>Wrong: <strong id="finalWrong">0</strong></p>
+      <div id="educationalMsg" class="edu-msg"></div>
+      <div class="modal-actions">
+        <button id="replayBtn" class="btn">আবার খেলুন (Shuffle)</button>
+        <button id="reviewBtn" class="btn alt">ভুল প্রশ্ন দেখুন</button>
+        <button id="closeModal" class="btn alt">বন্ধ</button>
+      </div>
+
+      <div id="reviewList" class="review-list hidden">
+        <h3>আপনি ভুল করেছেন — পুনরালোচনা</h3>
+        <ul id="reviewUl"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
