@@ -1,331 +1,282 @@
-/* app.js — ready-to-use quiz engine
-   Assumes:
-     - questions.js defines QUESTIONS (array)
-     - styles.css and index.html elements exist with matching IDs
-     - sounds/correct.mp3 and sounds/wrong.mp3 exist
-*/
+// ==================================
+// Black Force 007 — Advanced Quiz Engine (Final Highlight Edition v2)
+// ==================================
 
-(() => {
-  // CONFIG
-  const BASE_POINTS = 10;
-  const WRONG_PENALTY = 5;     // subtract points on wrong
-  const TIME_BONUS_MULT = 1;   // time left itself added as bonus
-  const PER_QUESTION_DEFAULT = 20; // default seconds
+let questions = [];
+let current = 0;
+let score = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let streak = 0;
+let timer = null;
+let timeLeft = 20;
+let paused = false;
+let wrongList = [];
 
-  // STATE
-  let pool = [];
-  let idx = 0;
-  let score = 0;
-  let correctCount = 0;
-  let wrongCount = 0;
-  let streak = 0;
-  let currentTimer = null;
-  let timeLeft = PER_QUESTION_DEFAULT;
-  let perQuestionTime = PER_QUESTION_DEFAULT;
-  let reviewWrong = []; // store objects {q, chosen}
+// Elements
+const qEl = document.getElementById("question");
+const optsEl = document.getElementById("options");
+const qIndexEl = document.getElementById("qIndex");
+const qTotalEl = document.getElementById("qTotal");
+const scoreEl = document.getElementById("score");
+const correctEl = document.getElementById("correctCount");
+const wrongEl = document.getElementById("wrongCount");
+const streakEl = document.getElementById("streak");
+const timeLeftEl = document.getElementById("timeLeft");
+const timeSelect = document.getElementById("timeSelect");
+const bigMark = document.getElementById("bigMark");
+const modal = document.getElementById("resultModal");
+const finalScoreEl = document.getElementById("finalScore");
+const finalCorrectEl = document.getElementById("finalCorrect");
+const finalWrongEl = document.getElementById("finalWrong");
+const reviewList = document.getElementById("reviewList");
+const reviewUl = document.getElementById("reviewUl");
+const eduMsg = document.getElementById("educationalMsg");
 
-  // DOM
-  const qIndexEl = document.getElementById('qIndex');
-  const qTotalEl = document.getElementById('qTotal');
-  const questionEl = document.getElementById('question');
-  const optionsEl = document.getElementById('options');
-  const scoreEl = document.getElementById('score');
-  const correctEl = document.getElementById('correctCount');
-  const wrongEl = document.getElementById('wrongCount');
-  const timeLeftEl = document.getElementById('timeLeft');
-  const timeSelect = document.getElementById('timeSelect');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const skipBtn = document.getElementById('skipBtn');
-  const bigMark = document.getElementById('bigMark');
+// ===============================
+// Initialization
+if (window.quizData) {
+  questions = [...window.quizData];
+  shuffle(questions);
+  qTotalEl.textContent = questions.length;
+  loadQuestion();
+} else {
+  qEl.textContent = "⚠ প্রশ্ন লোড হয়নি — questions.js ফাইল চেক করুন!";
+}
 
-  const resultModal = document.getElementById('resultModal');
-  const finalScoreEl = document.getElementById('finalScore');
-  const finalCorrectEl = document.getElementById('finalCorrect');
-  const finalWrongEl = document.getElementById('finalWrong');
-  const eduMsgEl = document.getElementById('educationalMsg');
-  const replayBtn = document.getElementById('replayBtn');
-  const reviewBtn = document.getElementById('reviewBtn');
-  const closeModal = document.getElementById('closeModal');
-  const reviewList = document.getElementById('reviewList');
-  const reviewUl = document.getElementById('reviewUl');
-  const streakEl = document.getElementById('streak');
+// ===============================
+function loadQuestion() {
+  if (current >= questions.length) return showResult();
+  clearInterval(timer);
 
-  // Sounds
-  const correctSound = new Audio('sounds/correct.mp3');
-  const wrongSound = new Audio('sounds/wrong.mp3');
+  const q = questions[current];
+  qIndexEl.textContent = current + 1;
+  qEl.textContent = q.q;
+  optsEl.innerHTML = "";
 
-  // Utilities
-  function shuffleArray(a){
-    for(let i=a.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [a[i],a[j]]=[a[j],a[i]];
-    }
-    return a;
-  }
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => handleAnswer(btn, i));
+    optsEl.appendChild(btn);
+  });
 
-  function formatMsg(score, correct, wrong){
-    const pct = Math.round((correct/(correct+wrong || 1))*100);
-    if(pct >= 80) return "অসাধারণ! আপনি সামাজিক সচেতনতা নিয়ে খুবই ভাল।";
-    if(pct >= 50) return "ভালো প্রচেষ্টা — কিছু আরও শিখুন ও মাঠে নীতিবোধ রাখুন।";
-    return "জনগণের জন্য দায় শুরুর পয়েন্ট — সততা ও সহানুভূতি গড়ে তুলুন।";
-  }
+  timeLeft = parseInt(timeSelect.value) || 20;
+  timeLeftEl.textContent = timeLeft;
+  startTimer();
+  bigMark.classList.remove("show");
+}
 
-  // Init
-  function initGame(){
-    pool = shuffleArray(QUESTIONS.slice()); // QUESTIONS from questions.js
-    idx = 0; score = 0; correctCount = 0; wrongCount = 0; streak=0; reviewWrong=[];
-    perQuestionTime = parseInt(timeSelect.value || PER_QUESTION_DEFAULT, 10);
-    qTotalEl.textContent = pool.length;
-    updateStats();
-    hideResult();
-    renderQuestion();
-  }
-
-  function updateStats(){
-    scoreEl.textContent = score;
-    correctEl.textContent = correctCount;
-    wrongEl.textContent = wrongCount;
-    streakEl.textContent = streak;
-  }
-
-  // Render question
-  function renderQuestion(){
-    clearInterval(currentTimer);
-    timeLeft = perQuestionTime;
-    timeLeftEl.textContent = timeLeft;
-    bigMark.classList.remove('show');
-    if(idx >= pool.length){
-      endGame();
-      return;
-    }
-
-    const q = pool[idx];
-    qIndexEl.textContent = idx+1;
-    questionEl.textContent = q.question;
-    optionsEl.innerHTML = '';
-
-    // create buttons (4 options expected)
-    q.options.forEach((opt, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.type = 'button';
-      btn.textContent = opt;
-      btn.setAttribute('data-opt', opt);
-      btn.setAttribute('aria-label', `option ${i+1}: ${opt}`);
-      btn.addEventListener('click', () => handleAnswer(btn, opt));
-      optionsEl.appendChild(btn);
-    });
-
-    // start timer
-    currentTimer = setInterval(()=>{
+// ===============================
+function startTimer() {
+  timer = setInterval(() => {
+    if (!paused) {
       timeLeft--;
       timeLeftEl.textContent = timeLeft;
-      if(timeLeft <= 0){
-        clearInterval(currentTimer);
-        handleTimeout();
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        showFeedback(false);
+        wrongList.push(questions[current]);
+        wrongCount++;
+        wrongEl.textContent = wrongCount;
+        setTimeout(nextQuestion, 1500);
       }
-    }, 1000);
-  }
-
-  function disableOptions(){
-    const btns = optionsEl.querySelectorAll('button');
-    btns.forEach(b=> b.classList.add('disabled') , b=> b.disabled=true);
-    btns.forEach(b=> b.disabled = true);
-  }
-
-  function handleAnswer(btn, selected){
-    clearInterval(currentTimer);
-    const q = pool[idx];
-    const correct = q.answer;
-    const btns = optionsEl.querySelectorAll('button');
-    // disable options
-    btns.forEach(b=> b.disabled = true);
-
-    // mark correct button
-    btns.forEach(b=>{
-      if(b.getAttribute('data-opt') === correct){
-        b.classList.add('option-correct');
-      }
-    });
-
-    if(selected === correct){
-      // correct
-      streak++;
-      correctCount++;
-      const timeBonus = Math.max(0, timeLeft * TIME_BONUS_MULT);
-      const earn = BASE_POINTS + timeBonus;
-      score += earn;
-      if(score < 0) score = 0;
-      playSoundSafe(correctSound);
-      showBigMark(true);
-    } else {
-      // wrong
-      streak = 0;
-      wrongCount++;
-      score -= WRONG_PENALTY;
-      if(score < 0) score = 0;
-      btn.classList.add('option-wrong');
-      playSoundSafe(wrongSound);
-      // store for review
-      reviewWrong.push({ q, chosen: selected });
-      showBigMark(false);
     }
-    updateStats();
+  }, 1000);
+}
 
-    // small delay then next
-    setTimeout(()=>{
-      idx++;
-      renderQuestion();
-    }, 1100);
-  }
+// ===============================
+function handleAnswer(btn, index) {
+  clearInterval(timer);
+  const q = questions[current];
+  const buttons = document.querySelectorAll(".option-btn");
+  buttons.forEach(b => (b.disabled = true));
+  const correct = index === q.answer;
 
-  function handleTimeout(){
-    // treat like wrong but no penalty maybe? Here we apply penalty but record no chosen
-    streak = 0;
+  if (correct) {
+    btn.classList.add("option-correct");
+    btn.style.transform = "scale(1.08)";
+    playSound("correct");
+    showFeedback(true);
+    score += 10;
+    correctCount++;
+    streak++;
+  } else {
+    btn.classList.add("option-wrong");
+    buttons[q.answer].classList.add("option-correct");
+    buttons[q.answer].style.transform = "scale(1.08)";
+    playSound("wrong");
+    showFeedback(false);
     wrongCount++;
-    score -= WRONG_PENALTY;
-    if(score < 0) score = 0;
-    // highlight correct
-    const q = pool[idx];
-    const btns = optionsEl.querySelectorAll('button');
-    btns.forEach(b=>{
-      if(b.getAttribute('data-opt') === q.answer) b.classList.add('option-correct');
-      b.disabled = true;
-    });
-    playSoundSafe(wrongSound);
-    reviewWrong.push({ q, chosen: null });
-    updateStats();
-    showBigMark(false);
-    setTimeout(()=>{ idx++; renderQuestion(); }, 1100);
-  }
-
-  function playSoundSafe(sound){
-    try{
-      sound.currentTime = 0;
-      const p = sound.play();
-      if(p && p.catch) p.catch(()=>{/* ignore autoplay blocked */});
-    } catch(e){ /* ignore */ }
-  }
-
-  function showBigMark(isCorrect){
-    bigMark.textContent = isCorrect ? '✅' : '❌';
-    bigMark.classList.add('show');
-    setTimeout(()=> bigMark.classList.remove('show'), 800);
-  }
-
-  function endGame(){
-    clearInterval(currentTimer);
-    showResult();
-  }
-
-  // Result modal
-  function showResult(){
-    finalScoreEl.textContent = score;
-    finalCorrectEl.textContent = correctCount;
-    finalWrongEl.textContent = wrongCount;
-    eduMsgEl.textContent = formatMsg(score, correctCount, wrongCount);
-    resultModal.classList.remove('hidden');
-    // fill review list hidden by default
-    reviewUl.innerHTML = '';
-    reviewWrong.forEach(item=>{
-      const li = document.createElement('li');
-      const chosenText = item.chosen === null ? "(সময় শেষ)" : item.chosen;
-      li.textContent = item.q.question + " — আপনার উত্তর: " + chosenText + " | সঠিক: " + item.q.answer;
-      reviewUl.appendChild(li);
-    });
-    // save highscore
-    const prev = parseInt(localStorage.getItem('bf007_high')||'0',10);
-    if(score > prev) localStorage.setItem('bf007_high', score);
-  }
-
-  function hideResult(){
-    resultModal.classList.add('hidden');
-    reviewList.classList.add('hidden');
-    reviewUl.innerHTML = '';
-  }
-
-  // Controls
-  timeSelect.addEventListener('change', ()=>{
-    perQuestionTime = parseInt(timeSelect.value,10);
-  });
-
-  pauseBtn.addEventListener('click', ()=>{
-    if(currentTimer){
-      clearInterval(currentTimer);
-      currentTimer = null;
-      pauseBtn.textContent = "Resume";
-    } else {
-      pauseBtn.textContent = "Pause";
-      // resume ticking
-      currentTimer = setInterval(()=>{
-        timeLeft--;
-        timeLeftEl.textContent = timeLeft;
-        if(timeLeft <= 0){ clearInterval(currentTimer); handleTimeout(); }
-      }, 1000);
-    }
-  });
-
-  skipBtn.addEventListener('click', ()=>{
-    clearInterval(currentTimer);
-    // mark as skipped (count as wrong? here mark wrong but with chosen null)
-    wrongCount++;
-    reviewWrong.push({ q: pool[idx], chosen: "(Skipped)" });
-    score -= WRONG_PENALTY;
-    if(score < 0) score = 0;
-    updateStats();
-    showBigMark(false);
-    setTimeout(()=>{ idx++; renderQuestion(); }, 600);
-  });
-
-  // modal buttons
-  replayBtn.addEventListener('click', ()=>{
-    hideResult();
-    initGame();
-  });
-  reviewBtn.addEventListener('click', ()=>{
-    reviewList.classList.toggle('hidden');
-  });
-  closeModal.addEventListener('click', ()=>{
-    resultModal.classList.add('hidden');
-  });
-
-  // keyboard shortcuts
-  window.addEventListener('keydown', (e)=>{
-    if(resultModal && !resultModal.classList.contains('hidden')) return;
-    const key = e.key;
-    if(['1','2','3','4'].includes(key)){
-      const btns = optionsEl.querySelectorAll('button');
-      const idxKey = parseInt(key,10)-1;
-      if(btns[idxKey]) btns[idxKey].click();
-    } else if(key === 's' || key === 'S') skipBtn.click();
-    else if(key === 'p' || key === 'P') pauseBtn.click();
-  });
-
-  // initialize on load
-  function initGame(){
-    // set totals
-    qTotalEl.textContent = QUESTIONS.length;
-    initGameVars();
-    initGame(); // recursive? we'll rename inner to initGameVars to avoid confusion
-  }
-
-  // rename to avoid conflict: actual initializer
-  function initGameVars(){
-    pool = shuffleArray(QUESTIONS.slice());
-    idx = 0;
-    score = 0;
-    correctCount = 0;
-    wrongCount = 0;
     streak = 0;
-    reviewWrong = [];
-    perQuestionTime = parseInt(timeSelect.value || PER_QUESTION_DEFAULT, 10);
-    qTotalEl.textContent = pool.length;
-    updateStats();
-    hideResult();
-    renderQuestion();
+    wrongList.push(q);
   }
 
-  // start
-  initGameVars();
+  scoreEl.textContent = score;
+  correctEl.textContent = correctCount;
+  wrongEl.textContent = wrongCount;
+  streakEl.textContent = streak;
 
-})();
+  setTimeout(nextQuestion, 1800);
+}
+
+// ===============================
+function showFeedback(isCorrect) {
+  const color = isCorrect ? "#00ff55" : "#ff3333";
+  const text = isCorrect ? "✅ সঠিক উত্তর!" : "❌ ভুল উত্তর!";
+  const glow = isCorrect
+    ? "0 0 40px rgba(0,255,100,0.8)"
+    : "0 0 40px rgba(255,50,50,0.8)";
+
+  bigMark.innerHTML = `
+    <div style="text-align:center;animation:pop 0.4s ease;">
+      <span style="
+        font-size:130px;
+        color:${color};
+        text-shadow:${glow};
+        font-weight:900;
+        display:block;
+      ">${text}</span>
+    </div>`;
+
+  // Background Flash
+  document.body.style.transition = "background 0.25s ease";
+  document.body.style.background = isCorrect
+    ? "radial-gradient(circle, #003300 0%, #071126 80%)"
+    : "radial-gradient(circle, #330000 0%, #071126 80%)";
+
+  setTimeout(() => {
+    document.body.style.background =
+      "linear-gradient(180deg, var(--bg1), var(--bg2))";
+  }, 500);
+
+  bigMark.classList.add("show");
+  setTimeout(() => bigMark.classList.remove("show"), 1300);
+}
+
+// ===============================
+function playSound(type) {
+  const audio = new Audio(
+    type === "correct"
+      ? "https://cdn.pixabay.com/download/audio/2022/03/15/audio_17ad3df4e0.mp3"
+      : "https://cdn.pixabay.com/download/audio/2022/03/15/audio_4e298eae7b.mp3"
+  );
+  audio.volume = 0.5;
+  audio.play();
+}
+
+// ===============================
+function nextQuestion() {
+  clearInterval(timer);
+  current++;
+  loadQuestion();
+}
+
+// ===============================
+document.getElementById("pauseBtn").addEventListener("click", e => {
+  paused = !paused;
+  e.target.textContent = paused ? "Resume" : "Pause";
+});
+
+document.getElementById("skipBtn").addEventListener("click", () => {
+  clearInterval(timer);
+  streak = 0;
+  nextQuestion();
+});
+
+// ===============================
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ===============================
+function showResult() {
+  clearInterval(timer);
+  modal.classList.remove("hidden");
+  finalScoreEl.textContent = score;
+  finalCorrectEl.textContent = correctCount;
+  finalWrongEl.textContent = wrongCount;
+
+  if (score < 100)
+    eduMsg.textContent = "চেষ্টা চালিয়ে যাও! তুমি আরও ভালো করতে পারবে 💪";
+  else if (score < 200)
+    eduMsg.textContent = "দারুণ! তুমি সচেতন নাগরিক হিসেবে অগ্রসর হচ্ছো 🔥";
+  else eduMsg.textContent = "অসাধারণ! তুমি সমাজ সচেতনতার হিরো 🏆";
+
+  reviewUl.innerHTML = "";
+  wrongList.forEach(q => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${q.q}</strong><br><span style="color:#2ecc71">সঠিক উত্তর:</span> ${q.options[q.answer]}`;
+    reviewUl.appendChild(li);
+  });
+}
+
+// ===============================
+document.getElementById("replayBtn").addEventListener("click", () => {
+  modal.classList.add("hidden");
+  resetGame();
+});
+document.getElementById("reviewBtn").addEventListener("click", () => {
+  reviewList.classList.toggle("hidden");
+});
+document.getElementById("closeModal").addEventListener("click", () => {
+  modal.classList.add("hidden");
+});
+
+function resetGame() {
+  score = 0;
+  correctCount = 0;
+  wrongCount = 0;
+  streak = 0;
+  current = 0;
+  wrongList = [];
+  shuffle(questions);
+  scoreEl.textContent = 0;
+  correctEl.textContent = 0;
+  wrongEl.textContent = 0;
+  streakEl.textContent = 0;
+  loadQuestion();
+}
+
+// ===============================
+// Inject animation styles
+const style = document.createElement("style");
+style.textContent = `
+@keyframes pop {
+  0% {transform:scale(0.8);opacity:0;}
+  50% {transform:scale(1.1);opacity:1;}
+  100% {transform:scale(1);opacity:1;}
+}
+.big-mark {
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.8);
+  text-align:center;
+  opacity:0;
+  transition:all 0.3s ease;
+  z-index:9999;
+}
+.big-mark.show {
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+.option-correct {
+  box-shadow:0 0 35px rgba(0,255,100,0.9);
+  border:3px solid #00ff88;
+  transform:scale(1.08);
+  transition:all 0.25s ease;
+}
+.option-wrong {
+  box-shadow:0 0 35px rgba(255,50,50,0.9);
+  border:3px solid #ff3333;
+  transform:scale(1.08);
+  transition:all 0.25s ease;
+}
+`;
+document.head.appendChild(style);
