@@ -1,171 +1,133 @@
-
-const questionEl = document.getElementById("question");
-const optionsEl = document.getElementById("options");
-const qIndexEl = document.getElementById("qIndex");
-const qTotalEl = document.getElementById("qTotal");
-const scoreEl = document.getElementById("score");
-const correctCountEl = document.getElementById("correctCount");
-const wrongCountEl = document.getElementById("wrongCount");
-const timeLeftEl = document.getElementById("timeLeft");
-const streakEl = document.getElementById("streak");
+const qElem = document.getElementById("question");
+const optionsElem = document.getElementById("options");
+const scoreElem = document.getElementById("score");
+const correctElem = document.getElementById("correctCount");
+const wrongElem = document.getElementById("wrongCount");
+const qIndexElem = document.getElementById("qIndex");
+const qTotalElem = document.getElementById("qTotal");
+const timeLeftElem = document.getElementById("timeLeft");
+const streakElem = document.getElementById("streak");
+const timeSelect = document.getElementById("timeSelect");
 const bigMark = document.getElementById("bigMark");
 
-const correctSound = document.getElementById("correctSound");
-const wrongSound = document.getElementById("wrongSound");
-
-const resultModal = document.getElementById("resultModal");
+const modal = document.getElementById("resultModal");
 const finalScore = document.getElementById("finalScore");
 const finalCorrect = document.getElementById("finalCorrect");
 const finalWrong = document.getElementById("finalWrong");
-const reviewUl = document.getElementById("reviewUl");
-const reviewList = document.getElementById("reviewList");
-
 const replayBtn = document.getElementById("replayBtn");
 const reviewBtn = document.getElementById("reviewBtn");
 const closeModal = document.getElementById("closeModal");
+const reviewList = document.getElementById("reviewList");
+const reviewUl = document.getElementById("reviewUl");
+const educationalMsg = document.getElementById("educationalMsg");
 
-const pauseBtn = document.getElementById("pauseBtn");
-const skipBtn = document.getElementById("skipBtn");
-const timeSelect = document.getElementById("timeSelect");
-
-let qIndex = 0;
-let score = 0;
-let correctCount = 0;
-let wrongCount = 0;
-let streak = 0;
-let timer = null;
-let timePerQ = parseInt(timeSelect.value);
-let paused = false;
+let qIndex = 0, score = 0, correct = 0, wrong = 0, streak = 0;
+let timer, timeLeft, paused = false;
 let wrongQuestions = [];
 
-qTotalEl.textContent = QUESTIONS.length;
+let questions = [...QUESTIONS];
+qTotalElem.textContent = questions.length;
 
-function playCorrectSound() { correctSound.play(); }
-function playWrongSound() { wrongSound.play(); }
-
-function showQuestion() {
-  const q = QUESTIONS[qIndex];
-  questionEl.textContent = q.question;
-  qIndexEl.textContent = qIndex + 1;
-  optionsEl.innerHTML = "";
-
-  q.options.forEach(opt => {
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+function showQuestion(){
+  if(qIndex >= questions.length) return showResult();
+  const q = questions[qIndex];
+  qIndexElem.textContent = qIndex + 1;
+  qElem.textContent = q.question;
+  optionsElem.innerHTML = "";
+  q.options.forEach(opt=>{
     const btn = document.createElement("button");
-    btn.textContent = opt;
     btn.className = "option-btn";
-    btn.onclick = () => handleAnswer(btn, q.answer);
-    optionsEl.appendChild(btn);
+    btn.textContent = opt;
+    btn.onclick = ()=>checkAnswer(opt,q.answer,btn);
+    optionsElem.appendChild(btn);
   });
-
   resetTimer();
 }
 
-function handleAnswer(btn, correctAns) {
-  const selected = btn.textContent;
-  const allBtns = document.querySelectorAll(".option-btn");
-  allBtns.forEach(b => b.disabled = true);
-
-  if (selected === correctAns) {
-    btn.classList.add("option-correct");
-    playCorrectSound();
-    showBigMark("✅");
-    score += 5;
-    correctCount++;
-    streak++;
-  } else {
-    btn.classList.add("option-wrong");
-    playWrongSound();
-    showBigMark("❌");
-    wrongCount++;
-    streak = 0;
-    wrongQuestions.push(QUESTIONS[qIndex]);
-  }
-
-  scoreEl.textContent = score;
-  correctCountEl.textContent = correctCount;
-  wrongCountEl.textContent = wrongCount;
-  streakEl.textContent = streak;
-
+function resetTimer(){
   clearInterval(timer);
-  setTimeout(nextQuestion, 1200);
-}
-
-function showBigMark(mark) {
-  bigMark.textContent = mark;
-  bigMark.classList.add("show");
-  setTimeout(() => bigMark.classList.remove("show"), 700);
-}
-
-function nextQuestion() {
-  qIndex++;
-  if (qIndex >= QUESTIONS.length) return showResult();
-  showQuestion();
-}
-
-function showResult() {
-  finalScore.textContent = score;
-  finalCorrect.textContent = correctCount;
-  finalWrong.textContent = wrongCount;
-
-  resultModal.classList.remove("hidden");
-}
-
-function resetTimer() {
-  clearInterval(timer);
-  let timeLeft = timePerQ;
-  timeLeftEl.textContent = timeLeft;
-  timer = setInterval(() => {
-    if (!paused) {
+  timeLeft = parseInt(timeSelect.value);
+  timeLeftElem.textContent = timeLeft;
+  timer = setInterval(()=>{
+    if(!paused){
       timeLeft--;
-      timeLeftEl.textContent = timeLeft;
-      if (timeLeft <= 0) {
+      timeLeftElem.textContent = timeLeft;
+      if(timeLeft<=0){
         clearInterval(timer);
-        wrongCount++;
-        streak = 0;
-        wrongQuestions.push(QUESTIONS[qIndex]);
-        nextQuestion();
+        handleWrong("সময় শেষ!");
       }
     }
-  }, 1000);
+  },1000);
 }
 
-timeSelect.addEventListener("change", () => {
-  timePerQ = parseInt(timeSelect.value);
-  resetTimer();
-});
+function checkAnswer(selected,correctAns,btn){
+  clearInterval(timer);
+  const all = document.querySelectorAll(".option-btn");
+  all.forEach(b=>b.disabled=true);
+  if(selected === correctAns){
+    btn.style.boxShadow = "0 0 15px #00ff99";
+    showBigMark(true);
+    score+=10; correct++; streak++;
+  }else{
+    btn.style.boxShadow = "0 0 15px #ff3b3b";
+    showBigMark(false);
+    wrong++; streak=0;
+    wrongQuestions.push({q:questions[qIndex].question,a:correctAns});
+  }
+  updateHUD();
+  setTimeout(()=>{qIndex++;showQuestion();},800);
+}
 
-pauseBtn.addEventListener("click", () => {
-  paused = !paused;
-  pauseBtn.textContent = paused ? "Resume" : "Pause";
-});
+function handleWrong(msg){
+  wrong++; streak=0;
+  wrongQuestions.push({q:questions[qIndex].question,a:questions[qIndex].answer});
+  updateHUD();
+  showBigMark(false);
+  setTimeout(()=>{qIndex++;showQuestion();},800);
+}
 
-skipBtn.addEventListener("click", () => {
-  wrongQuestions.push(QUESTIONS[qIndex]);
-  nextQuestion();
-});
+function updateHUD(){
+  scoreElem.textContent = score;
+  correctElem.textContent = correct;
+  wrongElem.textContent = wrong;
+  streakElem.textContent = streak;
+}
 
-replayBtn.addEventListener("click", () => {
-  QUESTIONS.sort(() => Math.random() - 0.5);
-  qIndex = 0;
-  score = 0;
-  correctCount = 0;
-  wrongCount = 0;
-  streak = 0;
-  wrongQuestions = [];
-  resultModal.classList.add("hidden");
-  showQuestion();
-});
+function showBigMark(correctAns){
+  bigMark.textContent = correctAns ? "✔️" : "❌";
+  bigMark.className = `big-mark show ${correctAns ? "correct" : "wrong"}`;
+  setTimeout(()=> bigMark.className="big-mark",500);
+}
 
-reviewBtn.addEventListener("click", () => {
+function showResult(){
+  clearInterval(timer);
+  modal.classList.remove("hidden");
+  finalScore.textContent = score;
+  finalCorrect.textContent = correct;
+  finalWrong.textContent = wrong;
+  educationalMsg.textContent = score > 300 ? "দারুণ কাজ! সমাজ সচেতনতার চ্যাম্পিয়ন!" :
+                                score > 150 ? "ভালো হয়েছে, আরও উন্নতি করো!" :
+                                "চেষ্টা চালিয়ে যাও — প্রতিটি প্রশ্ন শেখার সুযোগ।";
+}
+
+replayBtn.onclick = ()=>{
+  modal.classList.add("hidden");
+  qIndex=score=correct=wrong=streak=0;
+  wrongQuestions=[]; shuffle(questions);
+  updateHUD(); showQuestion();
+};
+reviewBtn.onclick = ()=>{
   reviewList.classList.toggle("hidden");
-  reviewUl.innerHTML = "";
-  wrongQuestions.forEach(wq => {
-    const li = document.createElement("li");
-    li.textContent = `${wq.question} → সঠিক উত্তর: ${wq.answer}`;
-    reviewUl.appendChild(li);
-  });
-});
+  reviewUl.innerHTML = wrongQuestions.map(x=>`<li>${x.q}<br><small>✔️ ${x.a}</small></li>`).join("");
+};
+closeModal.onclick = ()=> modal.classList.add("hidden");
+document.getElementById("pauseBtn").onclick = ()=> paused=!paused;
+document.getElementById("skipBtn").onclick = ()=>{
+  clearInterval(timer);
+  wrong++; streak=0; updateHUD();
+  qIndex++; showQuestion();
+};
 
-closeModal.addEventListener("click", () => resultModal.classList.add("hidden"));
-
+shuffle(questions);
 showQuestion();
