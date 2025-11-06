@@ -1,227 +1,952 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Black Force 007 – Quiz Game Engine</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-main: #0a0a0a;
-  --bg-card: #171717;
-  --accent: #00ff41;
-  --danger: #ff0040;
-  --text: #f0f0f0;
-  --shadow: rgba(0,255,65,0.4);
-}
-body {
-  margin:0;
-  font-family: "Noto Sans Bengali", sans-serif;
-  background: radial-gradient(circle at 10% 20%, rgba(0,255,65,0.05), transparent 25%), linear-gradient(135deg,#0a0a0a,#1a1a1a);
-  color: var(--text);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.container {
-  text-align:center;
-  max-width:700px;
-  width:95%;
-}
-h1 {
-  color: var(--accent);
-  font-size:2.2rem;
-  text-shadow:0 0 15px var(--shadow);
-}
-.subtitle {
-  color:#aaa;
-  margin-bottom:20px;
-}
-.card {
-  background: var(--bg-card);
-  border:1px solid rgba(0,255,65,0.2);
-  border-radius:10px;
-  padding:25px;
-  box-shadow:0 0 15px rgba(0,0,0,0.6);
-}
-button {
-  background: var(--accent);
-  color: var(--bg-main);
-  border:none;
-  padding:12px 25px;
-  border-radius:6px;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:15px;
-  transition:all .3s;
-}
-button:hover {
-  background:#00cc33;
-}
-.option {
-  background: var(--bg-main);
-  border:1px solid rgba(255,255,255,0.2);
-  border-radius:10px;
-  padding:12px;
-  margin:10px 0;
-  cursor:pointer;
-  transition:.3s;
-}
-.option:hover {
-  border-color: var(--accent);
-}
-.option.correct {
-  background: rgba(0,255,65,0.15);
-  border:1px solid var(--accent);
-  box-shadow: 0 0 10px var(--shadow);
-}
-.option.wrong {
-  background: rgba(255,0,64,0.15);
-  border:1px solid var(--danger);
-  box-shadow: 0 0 10px rgba(255,0,64,0.6);
-}
-.stats {
-  margin:10px 0;
-  color: var(--accent);
-  font-weight:bold;
-}
-.timer {
-  background: var(--bg-main);
-  border:1px solid rgba(0,255,65,0.3);
-  height:10px;
-  border-radius:5px;
-  overflow:hidden;
-  margin-top:15px;
-}
-.timer-progress {
-  height:100%;
-  background: var(--accent);
-  width:100%;
-  transition:width 1s linear;
-}
-.glow {
-  animation: glow 1s infinite alternate;
-}
-@keyframes glow {
-  from { text-shadow:0 0 10px var(--shadow); }
-  to { text-shadow:0 0 20px var(--shadow); }
-}
-.hidden { display:none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Force 007 - Quiz Game Engine</title>
+    <style>
+        :root {
+            --primary-color: #0a0a0a;
+            --secondary-color: #1a1a1a;
+            --accent-color: #00ff41;
+            --text-color: #f0f0f0;
+            --danger-color: #ff0040;
+            --success-color: #00ff41;
+            --card-bg: rgba(10, 10, 10, 0.8);
+            --timer-color: #ffaa00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans Bengali', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        @font-face {
+            font-family: 'Noto Sans Bengali';
+            src: url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap');
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 65, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 65, 0.05) 0%, transparent 20%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 24px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .active {
+            display: block;
+        }
+
+        #start-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .game-info {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-info h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .game-info p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--secondary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            min-width: 150px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .btn {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .btn:hover {
+            background: #00cc33;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        #quiz-screen .question-container {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--timer-color);
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        .timer-bar {
+            width: 100px;
+            height: 8px;
+            background: var(--secondary-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: var(--timer-color);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: var(--secondary-color);
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option {
+            background: var(--secondary-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .option:hover {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: rgba(0, 255, 65, 0.3);
+        }
+
+        .option.selected {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        .option.correct {
+            background: rgba(0, 255, 65, 0.3);
+            border-color: var(--success-color);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .option.incorrect {
+            background: rgba(255, 0, 64, 0.3);
+            border-color: var(--danger-color);
+            box-shadow: 0 0 15px rgba(255, 0, 64, 0.5);
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .option-label {
+            background: var(--primary-color);
+            color: var(--accent-color);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            flex-grow: 1;
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        #result-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            border-radius: 10px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-display {
+            font-size: 4rem;
+            color: var(--accent-color);
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .score-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .result-details {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .detail-card {
+            background: var(--secondary-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 200px;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .detail-value {
+            font-size: 2rem;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .performance-message {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .correct-feedback, .wrong-feedback {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            animation: popIn 0.5s ease;
+        }
+
+        .correct-feedback {
+            color: var(--success-color);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .wrong-feedback {
+            color: var(--danger-color);
+            text-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-info, .question-container, .result-card {
+                padding: 20px;
+            }
+            
+            .stats, .result-details {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .quiz-controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .question-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .option {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <h1>Quiz Game Engine</h1>
-  <p class="subtitle">Black Force 007</p>
-  <div id="start" class="card">
-    <p>তুমি কি প্রস্তুত তোমার জ্ঞান যাচাই করতে?</p>
-    <button id="startBtn">Start Game</button>
-  </div>
-  <div id="game" class="card hidden">
-    <div class="stats">
-      প্রশ্ন: <span id="current">1</span>/<span id="total">0</span> | স্কোর: <span id="score">0</span>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">007</div>
+                <h1>Black Force 007</h1>
+            </div>
+            <p class="subtitle">Quiz Game Engine</p>
+        </header>
+
+        <main>
+            <!-- Start Screen -->
+            <section id="start-screen" class="screen active">
+                <div class="game-info">
+                    <h2>গেমে স্বাগতম, এজেন্ট</h2>
+                    <p>এই কুইজে আপনাকে সামাজিক নৈতিকতা, মূল্যবোধ এবং সমাজে প্রচলিত বিভিন্ন সমস্যা সম্পর্কিত প্রশ্নের উত্তর দিতে হবে।</p>
+                    <p>প্রতিটি প্রশ্নের জন্য চারটি বিকল্প থাকবে। সঠিক উত্তর নির্বাচন করে আপনার নৈতিক জ্ঞান পরীক্ষা করুন।</p>
+                    
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-questions">50</div>
+                            <div>মোট প্রশ্ন</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-time">10</div>
+                            <div>মিনিট (আনুমানিক)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">70%</div>
+                            <div>পাসিং স্কোর</div>
+                        </div>
+                    </div>
+                    
+                    <p>গেমটি শেষে আপনি আপনার স্কোর এবং পারফরম্যান্স বিশ্লেষণ দেখতে পাবেন।</p>
+                </div>
+                
+                <button id="start-btn" class="btn pulse">কুইজ শুরু করুন</button>
+            </section>
+
+            <!-- Quiz Screen -->
+            <section id="quiz-screen" class="screen">
+                <div class="question-container">
+                    <div class="question-header">
+                        <div class="question-number">
+                            প্রশ্ন <span id="current-question">1</span> / <span id="total-questions-display">50</span>
+                        </div>
+                        <div class="timer-container">
+                            <div class="timer-bar">
+                                <div class="timer-progress" id="timer-progress"></div>
+                            </div>
+                            <div class="timer" id="timer">20</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-bar"></div>
+                    </div>
+                    
+                    <div class="question-text" id="question-text">
+                        প্রশ্ন লোড হচ্ছে...
+                    </div>
+                    
+                    <div class="options-container" id="options-container">
+                        <!-- Options will be dynamically added here -->
+                    </div>
+                    
+                    <div id="feedback-container">
+                        <!-- Feedback will be shown here -->
+                    </div>
+                    
+                    <div class="quiz-controls">
+                        <div>
+                            <span>স্কোর: <span id="current-score">0</span></span>
+                        </div>
+                        <button id="next-btn" class="btn">পরবর্তী প্রশ্ন</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Result Screen -->
+            <section id="result-screen" class="screen">
+                <div class="result-card">
+                    <h2>কুইজ সম্পন্ন!</h2>
+                    <div class="score-display" id="final-score">0</div>
+                    <div class="score-text" id="score-text">আপনার স্কোর</div>
+                    
+                    <div class="performance-message" id="performance-message">
+                        আপনার পারফরম্যান্স বিশ্লেষণ করা হচ্ছে...
+                    </div>
+                    
+                    <div class="result-details">
+                        <div class="detail-card">
+                            <div class="detail-value" id="correct-answers">0</div>
+                            <div>সঠিক উত্তর</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-value" id="incorrect-answers">0</div>
+                            <div>ভুল উত্তর</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-value" id="percentage">0%</div>
+                            <div>সাফল্যের হার</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-value" id="best-score">0</div>
+                            <div>সেরা স্কোর</div>
+                        </div>
+                    </div>
+                    
+                    <button id="restart-btn" class="btn">আবার খেলুন</button>
+                </div>
+            </section>
+        </main>
     </div>
-    <div id="question"></div>
-    <div id="options"></div>
-    <div class="timer"><div id="timerBar" class="timer-progress"></div></div>
-  </div>
-  <div id="result" class="card hidden">
-    <h2>গেম শেষ!</h2>
-    <p>সঠিক: <span id="correct"></span>, ভুল: <span id="wrong"></span></p>
-    <p>মোট স্কোর: <span id="finalScore"></span></p>
-    <p>Best Score: <span id="bestScore"></span></p>
-    <button id="replay">আবার খেলুন</button>
-  </div>
-</div>
 
-<script>
-const questions=[
-  {question:"সমাজে হিংসা কেন ক্ষতিকর?",options:["মানুষকে ভয় দেখায়","সম্পর্ক নষ্ট করে","শান্তি বিনষ্ট করে","অর্থনৈতিক ক্ষতি করে"],answer:"শান্তি বিনষ্ট করে"},
-  {question:"দালালি কি সৃষ্টি করে?",options:["দূর্নীতি বাড়ে","গণতন্ত্র শক্তিশালী হয়","শিক্ষা বৃদ্ধি পায়","ঐক্য বাড়ে"],answer:"দূর্নীতি বাড়ে"},
-  {question:"সৎ আচরণ সমাজে কী দেয়?",options:["অবজ্ঞা","বিশ্বাস ও স্থায়িত্ব","অবিচার","বিচ্ছেদ"],answer:"বিশ্বাস ও স্থায়িত্ব"},
-  {question:"অনলাইনে ভুল তথ্য শেয়ার করলে কী ঘটে?",options:["ত্রুটি কমায়","ভুল ধারণা বাড়ে","সত্যতা নিশ্চিত হয়","সম্পর্ক দৃঢ় হয়"],answer:"ভুল ধারণা বাড়ে"},
-  {question:"শিক্ষায় অনৈতিকতা রোধে প্রথম পদক্ষেপ কি?",options:["সৎ নীতির শিক্ষা","অজ্ঞতা","শাস্তি","দ্রুত প্রকাশনা"],answer:"সৎ নীতির শিক্ষা"}
-];
+    <script>
+        // Game configuration
+        const GAME_CONFIG = {
+            questionTime: 20, // seconds per question
+            pointsPerCorrect: 10,
+            totalQuestions: 50
+        };
 
-const start=document.getElementById("start"),game=document.getElementById("game"),result=document.getElementById("result");
-const qText=document.getElementById("question"),optDiv=document.getElementById("options");
-const currentEl=document.getElementById("current"),totalEl=document.getElementById("total");
-const scoreEl=document.getElementById("score"),timerBar=document.getElementById("timerBar");
-const correctEl=document.getElementById("correct"),wrongEl=document.getElementById("wrong"),finalScoreEl=document.getElementById("finalScore"),bestScoreEl=document.getElementById("bestScore");
+        // Game state
+        let gameState = {
+            currentQuestionIndex: 0,
+            score: 0,
+            correctAnswers: 0,
+            incorrectAnswers: 0,
+            selectedQuestions: [],
+            userAnswers: [],
+            timer: null,
+            timeLeft: GAME_CONFIG.questionTime
+        };
 
-let index=0,score=0,correct=0,wrong=0,timer, timeLeft=15;
+        // Questions data
+        const QUESTIONS = [  
+            { question: "সমাজে হিংসা কেন ক্ষতিকর?", options: ["মানুষকে ভয় দেখায়", "সম্পর্ক নষ্ট করে", "শান্তি বিনষ্ট করে", "অর্থনৈতিক ক্ষতি করে"], answer: "শান্তি বিনষ্ট করে" },  
+            { question: "চাটুকারিতা দীর্ঘমেয়াদে কী ক্ষতি করে?", options: ["আত্মসম্মান বাড়ায়", "ন্যায়বিচারকে অপসারণ করে", "সম্প্রদায় গঠন করে", "শিক্ষা উন্নত করে"], answer: "ন্যায়বিচারকে অপসারণ করে" },  
+            { question: "দালালি (বেচবিক্রির মাধ্যমে সুবিধা নেওয়া) কী সৃষ্টি করে?", options: ["দূর্নীতি বাড়ে", "গণতন্ত্র শক্তিশালী হয়", "শিক্ষা বৃদ্ধি পায়", "সামাজিক ঐক্য বাড়ে"], answer: "দূর্নীতি বাড়ে" },  
+            { question: "বেইমানি (প্রতারণা) কিসের সৃষ্টি করে?", options: ["ভরসা বৃদ্ধি করে", "অবিশ্বাস ও দ্বন্দ্ব", "আইনের সম্মান বাড়ায়", "আর্থিক স্থিতিশীলতা"], answer: "অবিশ্বাস ও দ্বন্দ্ব" },  
+            { question: "মিথ্যা গুজব ছড়ালে প্রধান সমস্যা কোনটি?", options: ["শান্তি বৃদ্ধি পায়", "মানুষ বিভ্রান্ত হয়", "সম্পদ বেড়ে যায়", "আস্থা বাড়ে"], answer: "মানুষ বিভ্রান্ত হয়" },  
+            { question: "দাদা গিরি (অবৈধ ক্ষমতা ব্যবহার) কি দেয়?", options: ["ন্যায় প্রতিষ্ঠা করে", "অন্যায় বৃদ্ধি করে", "সমালোচনা কমায়", "আইন মজবুত করে"], answer: "অন্যায় বৃদ্ধি করে" },  
+            { question: "চামচাগিরি বা বায়াস কাকে ক্ষতিগ্রস্ত করে?", options: ["যোগ্য প্রতিভাকে", "শিক্ষাকে", "অর্থনীতিকে", "পরিবেশকে"], answer: "যোগ্য প্রতিভাকে" },  
+            { question: "অনলাইনে ভুল তথ্য শেয়ার করলে কী ঘটে?", options: ["ত্রুটি কমিয়ে দেয়", "সত্যতা নিশ্চিত হয়", "ভুল ধারণা বাড়ে", "সম্পর্ক দৃঢ় হয়"], answer: "ভুল ধারণা বাড়ে" },  
+            { question: "হিংসা কমানোর সবচেয়ে কার্যকর উপায় কোনটি?", options: ["সংলাপ ও বোঝাপড়া", "আরো চাপ সৃষ্টি", "অসুস্থতা বাড়ানো", "নিরাপত্তা খাওয়ানো"], answer: "সংলাপ ও বোঝাপড়া" },  
+            { question: "সৎ আচরণ সমাজে কী দেয়?", options: ["অবজ্ঞা বাড়ায়", "বিশ্বাস ও স্থায়িত্ব", "সামাজিক বিভাজন", "অবিচার"], answer: "বিশ্বাস ও স্থায়িত্ব" },  
+            { question: "কেন মানহানিকর গুজব ছড়াবেন না?", options: ["কারও ক্ষতি হয়", "সকল উপকার পায়", "আইনী সুরক্ষা বাড়ে", "সঠিক তথ্য ছড়ায়"], answer: "কারও ক্ষতি হয়" },  
+            { question: "ন্যায়পরায়ণ আচরণ কীভাবে শিক্ষায় ভালো প্রভাব ফেলে?", options: ["অধ্যয়নে বিভ্রান্তি", "ন্যায্য মূল্যায়ন নিশ্চিত করে", "বৈষম্য বাড়ায়", "প্রতিরোধ বাড়ায়"], answer: "ন্যায্য মূল্যায়ন নিশ্চিত করে" },  
+            { question: "আদর্শিকভাবে ভিন্ন কাউকে কেবল কারণেই নির্যাতন কেন ভুল?", options: ["আমরা একে অপরকে শিখি", "নাগরিক স্বাধীনতা লঙ্ঘিত হয়", "সামাজিক সহায়তা বাড়ে", "কর্মসংস্থান বাড়ে"], answer: "নাগরিক স্বাধীনতা লঙ্ঘিত হয়" },  
+            { question: "কর্মস্থলে দালালিত্ব করলে কী সমস্যা হয়?", options: ["ন্যায্য কর্মপরিবেশ নষ্ট হয়", "উৎপাদন বেড়ে যায়", "টিমওয়ার্ক বাড়ে", "জব ভ্যাকান্সি বাড়ে"], answer: "ন্যায্য কর্মপরিবেশ নষ্ট হয়" },  
+            { question: "মিডিয়া-র স্পষ্টতা কেন জরুরি?", options: ["লোককে বিভ্রান্ত করে", "তথ্য সঠিকতা ও দায়িত্ব নিশ্চিত করে", "গোপনীয়তা ভঙ্গ করে", "সংগঠন দুর্বল করে"], answer: "তথ্য সঠিকতা ও দায়িত্ব নিশ্চিত করে" },  
+            { question: "কোনটি সামাজিক আস্থা বাড়ায়?", options: ["প্রতারণা", "স্বচ্ছতা", "গুজব", "দুষ্ট প্রভাব"], answer: "স্বচ্ছতা" },  
+            { question: "শিক্ষায় অনৈতিকতা রোধে প্রথম পদক্ষেপ কি?", options: ["অজ্ঞতা বাড়ানো", "সৎ নীতির শিক্ষা", "দ্রুত প্রকাশনা", "কেবল শাস্তি"], answer: "সৎ নীতির শিক্ষা" },  
+            { question: "কেন নেতিবাচক মন্তব্য কাউকে ধ্বংস করে?", options: ["উৎসাহ দেয়", "আত্মসম্মান খাটে", "নতুন সম্ভাবনা খুলে", "সম্পর্ক গড়ে"], answer: "আত্মসম্মান খাটে" },  
+            { question: "কিভাবে অনলাইন হিংসা প্রতিরোধ করা যায়?", options: ["ঘৃণাসূচক পোস্ট না করা", "একজনকে হয়রানি করা", "গোপনীয়তা ভঙ্গ করা", "ভিসা বন্ধ করা"], answer: "ঘৃণাসূচক পোস্ট না করা" },  
+            { question: "দুর্নীতির বিরুদ্ধে সামাজিক প্রতিরোধের কার্যকর উপায়?", options: ["স্বচ্ছতা ও জবাবদিহিতা", "গোপন আরোপ", "দয়া করা", "ভয় সৃষ্টি করা"], answer: "স্বচ্ছতা ও জবাবদিহিতা" },
+            { question: "সৎ থাকা কেন গুরুত্বপূর্ণ?", options: ["সম্মান বাড়ায়", "অবিশ্বাস তৈরি করে", "সম্পর্ক নষ্ট করে", "অর্থনৈতিক ক্ষতি করে"], answer: "সম্মান বাড়ায়" },
+            { question: "শিক্ষায় নৈতিকতা কেন শেখানো উচিত?", options: ["ভালো মানুষ তৈরি করতে", "পরীক্ষায় ভালো ফলাফল করতে", "প্রতিযোগিতা বাড়াতে", "সময় নষ্ট করতে"], answer: "ভালো মানুষ তৈরি করতে" },
+            { question: "সামাজিক দায়িত্ব কী?", options: ["অন্যের কল্যাণে কাজ করা", "শুধু নিজের চিন্তা করা", "অন্যকে উপেক্ষা করা", "সমাজ থেকে দূরে থাকা"], answer: "অন্যের কল্যাণে কাজ করা" },
+            { question: "সহযোগিতা কেন প্রয়োজন?", options: ["সমস্যা সমাধানে সাহায্য করে", "বিভেদ সৃষ্টি করে", "সময় নষ্ট করে", "ব্যক্তিগত স্বার্থে বাধা দেয়"], answer: "সমস্যা সমাধানে সাহায্য করে" },
+            { question: "নিজের ভুল স্বীকার করা কেন গুরুত্বপূর্ণ?", options: ["ব্যক্তিত্বের উন্নতি ঘটায়", "দুর্বলতা দেখায়", "সম্মান কমায়", "অন্যরা সুযোগ নেয়"], answer: "ব্যক্তিত্বের উন্নতি ঘটায়" },
+            { question: "পরিবেশ রক্ষায় আমাদের দায়িত্ব কী?", options: ["পরিবেশ দূষণ রোধ করা", "শুধু সরকারের উপর ছেড়ে দেওয়া", "অন্যের উপর দায়িত্ব চাপানো", "কিছু না করা"], answer: "পরিবেশ দূষণ রোধ করা" },
+            { question: "সময়ের মূল্য কেন?", options: ["সময় কখনো ফিরে আসে না", "সময়ের কোন মূল্য নেই", "সময় শুধু অর্থের জন্য", "সময় শুধু কাজের জন্য"], answer: "সময় কখনো ফিরে আসে না" },
+            { question: "পরিশ্রমের গুরুত্ব কী?", options: ["সাফল্যের চাবিকাঠি", "সাফল্যের বিরোধী", "সময় নষ্ট", "শুধু শারীরিক কাজের জন্য"], answer: "সাফল্যের চাবিকাঠি" },
+            { question: "সাহসিকতা কেন প্রয়োজন?", options: ["চ্যালেঞ্জ মোকাবেলায় সাহায্য করে", "ভয় দেখানোর জন্য", "অন্যকে ভয় পাওয়ার জন্য", "সমস্যা এড়ানোর জন্য"], answer: "চ্যালেঞ্জ মোকাবেলায় সাহায্য করে" },
+            { question: "কর্মে নিষ্ঠা কেন গুরুত্বপূর্ণ?", options: ["ভালো ফলাফল নিশ্চিত করে", "শুধু চাকরির জন্য", "অন্যকে প্রভাবিত করার জন্য", "সময় কাটানোর জন্য"], answer: "ভালো ফলাফল নিশ্চিত করে" },
+            { question: "পরিবারের গুরুত্ব কী?", options: ["আত্মীয়দের সাথে সম্পর্ক গড়ে", "শুধু বাসস্থান", "অর্থনৈতিক সহায়তা", "সমাজে অবস্থান"], answer: "আত্মীয়দের সাথে সম্পর্ক গড়ে" },
+            { question: "স্বাস্থ্য সচেতনতা কেন প্রয়োজন?", options: ["সুস্থ জীবনযাপনের জন্য", "শুধু ডাক্তারের পরামর্শ", "ওষুধ খাওয়ার জন্য", "অন্যের দেখানোর জন্য"], answer: "সুস্থ জীবনযাপনের জন্য" },
+            { question: "সৃজনশীলতা কেন গুরুত্বপূর্ণ?", options: ["নতুন ধারণা তৈরি করে", "শুধু শিল্পের জন্য", "সময় নষ্ট", "অন্যকে কপি করার জন্য"], answer: "নতুন ধারণা তৈরি করে" },
+            { question: "বন্ধুত্বের মূল্য কী?", options: ["সমর্থন ও ভালোবাসা দেয়", "শুধু প্রয়োজন মেটানোর জন্য", "সময় কাটানোর জন্য", "অন্যকে ব্যবহার করার জন্য"], answer: "সমর্থন ও ভালোবাসা দেয়" },
+            { question: "শিক্ষার প্রকৃত উদ্দেশ্য কী?", options: ["জ্ঞান ও চরিত্র গঠন", "শুধু চাকরি পাওয়া", "পরীক্ষায় পাস করা", "অন্যের থেকে এগিয়ে থাকা"], answer: "জ্ঞান ও চরিত্র গঠন" },
+            { question: "সহমর্মিতা কেন প্রয়োজন?", options: ["অন্যের কষ্ট বুঝতে সাহায্য করে", "শুধু নিজের জন্য", "অন্যকে দুর্বল দেখানোর জন্য", "সমাজে গ্রহণযোগ্যতা পাওয়ার জন্য"], answer: "অন্যের কষ্ট বুঝতে সাহায্য করে" },
+            { question: "সততা কেন সর্বোত্তম নীতি?", options: ["বিশ্বাস ও সম্মান অর্জন করে", "শুধু কথার কথা", "অন্যকে বোকা বানানোর জন্য", "সময় নষ্ট"], answer: "বিশ্বাস ও সম্মান অর্জন করে" },
+            { question: "দেশপ্রেম কী?", options: ["দেশের জন্য ভালোবাসা ও ত্যাগ", "শুধু জাতীয় দিবস উদযাপন", "অন্য দেশকে অপছন্দ করা", "রাজনৈতিক দলে যোগ দেওয়া"], answer: "দেশের জন্য ভালোবাসা ও ত্যাগ" },
+            { question: "অধ্যবসায় কী?", options: ["কঠোর পরিশ্রম ও অটল থাকা", "শুধু ভাগ্যের উপর নির্ভর করা", "অন্যকে দোষারোপ করা", "সমস্যা এড়িয়ে যাওয়া"], answer: "কঠোর পরিশ্রম ও অটল থাকা" },
+            { question: "ক্ষমা করা কেন গুরুত্বপূর্ণ?", options: ["মনের শান্তি ও সম্পর্ক মেরামত", "দুর্বলতা দেখানো", "অন্যকে সুযোগ দেওয়া", "সমস্যা বাড়ানো"], answer: "মনের শান্তি ও সম্পর্ক মেরামত" },
+            { question: "নিজেকে উন্নত করা কেন প্রয়োজন?", options: ["ব্যক্তিগত বিকাশের জন্য", "শুধু অন্যের কাছে ভালো দেখানোর জন্য", "প্রতিযোগিতায় জেতার জন্য", "সময় কাটানোর জন্য"], answer: "ব্যক্তিগত বিকাশের জন্য" },
+            { question: "সমাজ সেবা কেন প্রয়োজন?", options: ["অন্যের সাহায্য করা", "শুধু নাম কামানো", "অর্থ উপার্জন", "রাজনৈতিক সুবিধা"], answer: "অন্যের সাহায্য করা" },
+            { question: "প্রকৃতি সংরক্ষণ কেন গুরুত্বপূর্ণ?", options: ["ভবিষ্যত প্রজন্মের জন্য", "শুধু বর্তমানের জন্য", "আইন মানার জন্য", "অন্য দেশের চাপে"], answer: "ভবিষ্যত প্রজন্মের জন্য" },
+            { question: "সংস্কৃতি রক্ষা কেন প্রয়োজন?", options: ["পরিচয় ও ঐতিহ্য বজায় রাখা", "শুধু অতীতের কথা", "পর্যটন শিল্পের জন্য", "রাজনৈতিক উদ্দেশ্যে"], answer: "পরিচয় ও ঐতিহ্য বজায় রাখা" },
+            { question: "বিজ্ঞান শিক্ষা কেন প্রয়োজন?", options: ["বাস্তব সমস্যা সমাধান", "শুধু তথ্য memorization", "পরীক্ষায় ভালো ফল", "অন্যকে ইম্প্রেস করার জন্য"], answer: "বাস্তব সমস্যা সমাধান" },
+            { question: "শান্তি বজায় রাখা কেন গুরুত্বপূর্ণ?", options: ["সামাজিক উন্নয়নের জন্য", "শুধু ব্যক্তিগত সুবিধা", "অন্যকে নিয়ন্ত্রণ করার জন্য", "সময় নষ্ট"], answer: "সামাজিক উন্নয়নের জন্য" },
+            { question: "নেতৃত্বের গুণাবলী কী?", options: ["দায়িত্ববোধ ও সিদ্ধান্ত নেওয়ার ক্ষমতা", "শুধু আদেশ দেওয়া", "অন্যকে নিয়ন্ত্রণ করা", "সমস্ত কৃতিত্ব নেওয়া"], answer: "দায়িত্ববোধ ও সিদ্ধান্ত নেওয়ার ক্ষমতা" },
+            { question: "সহনশীলতা কেন প্রয়োজন?", options: ["বিভিন্ন মতামত মেনে নেওয়া", "শুধু নিজের মতামত চাপিয়ে দেওয়া", "অন্যকে অপছন্দ করা", "সমস্যা এড়িয়ে যাওয়া"], answer: "বিভিন্ন মতামত মেনে নেওয়া" },
+            { question: "আত্মবিশ্বাস কেন গুরুত্বপূর্ণ?", options: ["সাফল্য অর্জনে সাহায্য করে", "অহংকার দেখানো", "অন্যকে ছোট করা", "সমস্যা তৈরি করা"], answer: "সাফল্য অর্জনে সাহায্য করে" },
+            { question: "জীবনে লক্ষ্য নির্ধারণ কেন প্রয়োজন?", options: ["দিশা ও অনুপ্রেরণা দেয়", "শুধু স্বপ্ন দেখা", "অন্যকে অনুকরণ করা", "সময় নষ্ট"], answer: "দিশা ও অনুপ্রেরণা দেয়" }
+        ];
 
-function startGame(){
-  start.classList.add("hidden"); game.classList.remove("hidden");
-  index=0;score=0;correct=0;wrong=0;
-  totalEl.textContent=questions.length;
-  showQuestion();
-}
+        // DOM elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsDisplay = document.getElementById('total-questions-display');
+        const currentScoreElement = document.getElementById('current-score');
+        const finalScoreElement = document.getElementById('final-score');
+        const correctAnswersElement = document.getElementById('correct-answers');
+        const incorrectAnswersElement = document.getElementById('incorrect-answers');
+        const percentageElement = document.getElementById('percentage');
+        const performanceMessageElement = document.getElementById('performance-message');
+        const progressBar = document.getElementById('progress-bar');
+        const timerElement = document.getElementById('timer');
+        const timerProgressElement = document.getElementById('timer-progress');
+        const bestScoreElement = document.getElementById('best-score');
+        const feedbackContainer = document.getElementById('feedback-container');
 
-function showQuestion(){
-  if(index>=questions.length) return endGame();
-  const q=questions[index];
-  qText.innerHTML=q.question;
-  optDiv.innerHTML="";
-  currentEl.textContent=index+1;
-  q.options.forEach(opt=>{
-    const div=document.createElement("div");
-    div.className="option";
-    div.textContent=opt;
-    div.onclick=()=>selectOption(div,opt,q.answer);
-    optDiv.appendChild(div);
-  });
-  startTimer();
-}
+        // Audio elements
+        const correctSound = new Audio('sounds/correct.mp3');
+        const wrongSound = new Audio('sounds/wrong.mp3');
+        const clickSound = new Audio('sounds/click.mp3');
 
-function selectOption(el,opt,ans){
-  stopTimer();
-  const options=document.querySelectorAll(".option");
-  options.forEach(o=>o.onclick=null);
-  if(opt===ans){
-    el.classList.add("correct");
-    score+=10; correct++;
-    playSound("correct");
-  } else {
-    el.classList.add("wrong");
-    wrong++;
-    playSound("wrong");
-  }
-  scoreEl.textContent=score;
-  setTimeout(()=>{index++;showQuestion();},1200);
-}
+        // Initialize game
+        function initGame() {
+            // Select random questions
+            gameState.selectedQuestions = [...QUESTIONS]
+                .sort(() => 0.5 - Math.random())
+                .slice(0, GAME_CONFIG.totalQuestions);
+            
+            // Reset game state
+            gameState.currentQuestionIndex = 0;
+            gameState.score = 0;
+            gameState.correctAnswers = 0;
+            gameState.incorrectAnswers = 0;
+            gameState.userAnswers = [];
+            gameState.timeLeft = GAME_CONFIG.questionTime;
+            
+            // Update UI
+            currentScoreElement.textContent = gameState.score;
+            totalQuestionsDisplay.textContent = GAME_CONFIG.totalQuestions;
+            
+            // Show quiz screen
+            startScreen.classList.remove('active');
+            quizScreen.classList.add('active');
+            
+            // Load first question
+            loadQuestion();
+        }
 
-function startTimer(){
-  clearInterval(timer); timeLeft=15; timerBar.style.width="100%";
-  timer=setInterval(()=>{
-    timeLeft--;
-    timerBar.style.width=(timeLeft/15*100)+"%";
-    if(timeLeft<=0){
-      stopTimer();
-      wrong++;index++;
-      playSound("click");
-      showQuestion();
-    }
-  },1000);
-}
-function stopTimer(){clearInterval(timer);}
+        // Load current question
+        function loadQuestion() {
+            // Clear previous feedback
+            feedbackContainer.innerHTML = '';
+            
+            // Update progress bar
+            const progress = ((gameState.currentQuestionIndex) / GAME_CONFIG.totalQuestions) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Update question number
+            currentQuestionElement.textContent = gameState.currentQuestionIndex + 1;
+            
+            // Get current question
+            const currentQuestion = gameState.selectedQuestions[gameState.currentQuestionIndex];
+            
+            // Set question text
+            questionText.textContent = currentQuestion.question;
+            
+            // Clear options container
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.innerHTML = `
+                    <div class="option-label">${String.fromCharCode(65 + index)}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionElement.addEventListener('click', () => selectOption(optionElement, option, currentQuestion.answer));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Reset and start timer
+            resetTimer();
+            startTimer();
+            
+            // Disable next button initially
+            nextBtn.disabled = true;
+        }
 
-function endGame(){
-  game.classList.add("hidden"); result.classList.remove("hidden");
-  correctEl.textContent=correct; wrongEl.textContent=wrong; finalScoreEl.textContent=score;
-  let best=localStorage.getItem("bestScore")||0;
-  if(score>best){best=score; localStorage.setItem("bestScore",best);}
-  bestScoreEl.textContent=best;
-}
+        // Select an option
+        function selectOption(optionElement, selectedOption, correctAnswer) {
+            // Play click sound
+            clickSound.play();
+            
+            // Disable all options
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(opt => {
+                opt.classList.add('disabled');
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Mark selected option
+            optionElement.classList.add('selected');
+            
+            // Check if answer is correct
+            const isCorrect = selectedOption === correctAnswer;
+            
+            // Show feedback
+            showFeedback(isCorrect, correctAnswer);
+            
+            // Update score and stats
+            if (isCorrect) {
+                gameState.score += GAME_CONFIG.pointsPerCorrect;
+                gameState.correctAnswers++;
+                correctSound.play();
+            } else {
+                gameState.incorrectAnswers++;
+                wrongSound.play();
+                
+                // Highlight correct answer
+                allOptions.forEach(opt => {
+                    if (opt.querySelector('.option-text').textContent === correctAnswer) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Update score display
+            currentScoreElement.textContent = gameState.score;
+            
+            // Store user answer
+            gameState.userAnswers.push({
+                question: gameState.selectedQuestions[gameState.currentQuestionIndex].question,
+                userAnswer: selectedOption,
+                correctAnswer: correctAnswer,
+                isCorrect: isCorrect
+            });
+            
+            // Enable next button
+            nextBtn.disabled = false;
+            
+            // Stop timer
+            clearInterval(gameState.timer);
+        }
 
-function playSound(type){
-  let audio=new Audio("sounds/"+type+".mp3");
-  audio.play();
-}
+        // Show feedback for answer
+        function showFeedback(isCorrect, correctAnswer) {
+            feedbackContainer.innerHTML = '';
+            
+            const feedbackElement = document.createElement('div');
+            feedbackElement.className = isCorrect ? 'correct-feedback' : 'wrong-feedback';
+            feedbackElement.textContent = isCorrect ? '✅ সঠিক উত্তর!' : '❌ ভুল উত্তর!';
+            
+            if (!isCorrect) {
+                const correctAnswerElement = document.createElement('div');
+                correctAnswerElement.style.marginTop = '10px';
+                correctAnswerElement.style.fontSize = '1.2rem';
+                correctAnswerElement.textContent = `সঠিক উত্তর: ${correctAnswer}`;
+                feedbackElement.appendChild(correctAnswerElement);
+            }
+            
+            feedbackContainer.appendChild(feedbackElement);
+        }
 
-document.getElementById("startBtn").onclick=()=>{playSound("click");startGame();};
-document.getElementById("replay").onclick=()=>{playSound("click");result.classList.add("hidden");start.classList.remove("hidden");};
-</script>
+        // Start timer for current question
+        function startTimer() {
+            gameState.timeLeft = GAME_CONFIG.questionTime;
+            timerElement.textContent = gameState.timeLeft;
+            timerProgressElement.style.width = '100%';
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                timerElement.textContent = gameState.timeLeft;
+                
+                // Update timer progress bar
+                const progressPercent = (gameState.timeLeft / GAME_CONFIG.questionTime) * 100;
+                timerProgressElement.style.width = `${progressPercent}%`;
+                
+                // Change color when time is running out
+                if (gameState.timeLeft <= 5) {
+                    timerElement.style.color = 'var(--danger-color)';
+                    timerProgressElement.style.background = 'var(--danger-color)';
+                }
+                
+                // Time's up
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        // Reset timer
+        function resetTimer() {
+            clearInterval(gameState.timer);
+            timerElement.textContent = GAME_CONFIG.questionTime;
+            timerElement.style.color = 'var(--timer-color)';
+            timerProgressElement.style.background = 'var(--timer-color)';
+            timerProgressElement.style.width = '100%';
+        }
+
+        // Handle time up
+        function timeUp() {
+            // Disable all options
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(opt => {
+                opt.classList.add('disabled');
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Show correct answer
+            const correctAnswer = gameState.selectedQuestions[gameState.currentQuestionIndex].answer;
+            allOptions.forEach(opt => {
+                if (opt.querySelector('.option-text').textContent === correctAnswer) {
+                    opt.classList.add('correct');
+                }
+            });
+            
+            // Show feedback
+            showFeedback(false, correctAnswer);
+            
+            // Update stats
+            gameState.incorrectAnswers++;
+            
+            // Store user answer (as unanswered)
+            gameState.userAnswers.push({
+                question: gameState.selectedQuestions[gameState.currentQuestionIndex].question,
+                userAnswer: null,
+                correctAnswer: correctAnswer,
+                isCorrect: false
+            });
+            
+            // Enable next button
+            nextBtn.disabled = false;
+        }
+
+        // Move to next question
+        function nextQuestion() {
+            // Play click sound
+            clickSound.play();
+            
+            gameState.currentQuestionIndex++;
+            
+            if (gameState.currentQuestionIndex < GAME_CONFIG.totalQuestions) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        // End game and show results
+        function endGame() {
+            // Calculate percentage
+            const percentage = Math.round((gameState.correctAnswers / GAME_CONFIG.totalQuestions) * 100);
+            
+            // Update result screen
+            finalScoreElement.textContent = gameState.score;
+            correctAnswersElement.textContent = gameState.correctAnswers;
+            incorrectAnswersElement.textContent = gameState.incorrectAnswers;
+            percentageElement.textContent = `${percentage}%`;
+            
+            // Get best score from localStorage
+            let bestScore = localStorage.getItem('blackForceBestScore') || 0;
+            if (gameState.score > bestScore) {
+                bestScore = gameState.score;
+                localStorage.setItem('blackForceBestScore', bestScore);
+            }
+            bestScoreElement.textContent = bestScore;
+            
+            // Set performance message
+            let performanceMessage = '';
+            if (percentage >= 90) {
+                performanceMessage = 'অসাধারণ! আপনি একজন নৈতিকতা বিশেষজ্ঞ!';
+            } else if (percentage >= 70) {
+                performanceMessage = 'ভালো হয়েছে! আপনার নৈতিক জ্ঞান বেশ ভালো।';
+            } else if (percentage >= 50) {
+                performanceMessage = 'মোটামুটি ভালো। আরো চর্চা প্রয়োজন।';
+            } else {
+                performanceMessage = 'আপনার নৈতিক জ্ঞান উন্নত করার প্রয়োজন আছে।';
+            }
+            performanceMessageElement.textContent = performanceMessage;
+            
+            // Show result screen
+            quizScreen.classList.remove('active');
+            resultScreen.classList.add('active');
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', initGame);
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', () => {
+            // Play click sound
+            clickSound.play();
+            
+            resultScreen.classList.remove('active');
+            startScreen.classList.add('active');
+        });
+
+        // Initialize best score display
+        window.addEventListener('load', () => {
+            const bestScore = localStorage.getItem('blackForceBestScore') || 0;
+            document.getElementById('total-questions').textContent = GAME_CONFIG.totalQuestions;
+        });
+    </script>
 </body>
 </html>
