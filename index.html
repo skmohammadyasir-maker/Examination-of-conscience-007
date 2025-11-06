@@ -6,7 +6,6 @@
   <title>Black Force 007 — Quiz</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<link rel="stylesheet" href="style.css">
 <body>
   <div class="app">
     <header class="topbar">
@@ -17,52 +16,50 @@
           <p class="subtitle">সমাজ সচেতনতা — Quiz Game</p>
         </div>
       </div>
-
       <div class="status-block">
         <div class="stat">Score <span id="score">0</span></div>
-        <div class="stat">Correct <span id="correctCount">0</span></div>
-        <div class="stat">Wrong <span id="wrongCount">0</span></div>
+        <div class="stat">✔️ <span id="correctCount">0</span></div>
+        <div class="stat">❌ <span id="wrongCount">0</span></div>
       </div>
     </header>
 
     <main class="main">
       <section class="card">
         <div class="card-top">
-          <div class="progress">প্রশ্ন <span id="qIndex">1</span>/<span id="qTotal">50</span></div>
+          <div class="progress">প্রশ্ন <span id="qIndex">1</span>/<span id="qTotal">0</span></div>
           <div class="controls">
-            <label for="timeSelect">সময়/প্রশ্ন</label>
+            <label>সময়/প্রশ্ন</label>
             <select id="timeSelect">
               <option value="15">15s</option>
               <option value="20" selected>20s</option>
-              <option value="30">30s</option>
             </select>
-            <button id="pauseBtn" class="small-btn">Pause</button>
-            <button id="skipBtn" class="small-btn">Skip</button>
+            <button id="pauseBtn" class="small-btn">⏸</button>
+            <button id="skipBtn" class="small-btn">⏭</button>
           </div>
         </div>
 
-        <div id="question" class="question" aria-live="polite">প্রশ্ন এখানে দেখানো হবে</div>
-        <div id="options" class="options" role="list"></div>
+        <div id="question" class="question">লোড হচ্ছে...</div>
+        <div id="options" class="options"></div>
 
         <div class="footer">
-          <div class="timer">⏱️ Time left: <span id="timeLeft">20</span>s</div>
+          <div class="timer">Time left: <span id="timeLeft">20</span>s</div>
           <div class="extra">🔥 Streak: <span id="streak">0</span></div>
         </div>
       </section>
     </main>
   </div>
 
-  <div id="bigMark" class="big-mark" aria-hidden="true"></div>
+  <div id="bigMark" class="big-mark"></div>
 
-  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div id="resultModal" class="modal hidden">
     <div class="modal-content">
       <h2>আপনার ফলাফল</h2>
       <p>Score: <strong id="finalScore">0</strong></p>
       <p>Correct: <strong id="finalCorrect">0</strong></p>
       <p>Wrong: <strong id="finalWrong">0</strong></p>
-      <div id="educationalMsg" class="edu-msg"></div>
+      <div id="educationalMsg"></div>
       <div class="modal-actions">
-        <button id="replayBtn" class="btn">আবার খেলুন (Shuffle)</button>
+        <button id="replayBtn" class="btn">আবার খেলুন 🔁</button>
         <button id="reviewBtn" class="btn alt">ভুল প্রশ্ন দেখুন</button>
         <button id="closeModal" class="btn alt">বন্ধ</button>
       </div>
@@ -73,9 +70,6 @@
       </div>
     </div>
   </div>
-
-  <audio id="correctSound" src="correct.mp3"></audio>
-  <audio id="wrongSound" src="wrong.mp3"></audio>
 
   <script src="questions.js"></script>
   <script src="app.js"></script>
