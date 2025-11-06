@@ -1,112 +1,227 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Black Force 007</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Force 007 – Quiz Game Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main: #0a0a0a;
+  --bg-card: #171717;
+  --accent: #00ff41;
+  --danger: #ff0040;
+  --text: #f0f0f0;
+  --shadow: rgba(0,255,65,0.4);
+}
+body {
+  margin:0;
+  font-family: "Noto Sans Bengali", sans-serif;
+  background: radial-gradient(circle at 10% 20%, rgba(0,255,65,0.05), transparent 25%), linear-gradient(135deg,#0a0a0a,#1a1a1a);
+  color: var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.container {
+  text-align:center;
+  max-width:700px;
+  width:95%;
+}
+h1 {
+  color: var(--accent);
+  font-size:2.2rem;
+  text-shadow:0 0 15px var(--shadow);
+}
+.subtitle {
+  color:#aaa;
+  margin-bottom:20px;
+}
+.card {
+  background: var(--bg-card);
+  border:1px solid rgba(0,255,65,0.2);
+  border-radius:10px;
+  padding:25px;
+  box-shadow:0 0 15px rgba(0,0,0,0.6);
+}
+button {
+  background: var(--accent);
+  color: var(--bg-main);
+  border:none;
+  padding:12px 25px;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:15px;
+  transition:all .3s;
+}
+button:hover {
+  background:#00cc33;
+}
+.option {
+  background: var(--bg-main);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:10px;
+  padding:12px;
+  margin:10px 0;
+  cursor:pointer;
+  transition:.3s;
+}
+.option:hover {
+  border-color: var(--accent);
+}
+.option.correct {
+  background: rgba(0,255,65,0.15);
+  border:1px solid var(--accent);
+  box-shadow: 0 0 10px var(--shadow);
+}
+.option.wrong {
+  background: rgba(255,0,64,0.15);
+  border:1px solid var(--danger);
+  box-shadow: 0 0 10px rgba(255,0,64,0.6);
+}
+.stats {
+  margin:10px 0;
+  color: var(--accent);
+  font-weight:bold;
+}
+.timer {
+  background: var(--bg-main);
+  border:1px solid rgba(0,255,65,0.3);
+  height:10px;
+  border-radius:5px;
+  overflow:hidden;
+  margin-top:15px;
+}
+.timer-progress {
+  height:100%;
+  background: var(--accent);
+  width:100%;
+  transition:width 1s linear;
+}
+.glow {
+  animation: glow 1s infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow:0 0 10px var(--shadow); }
+  to { text-shadow:0 0 20px var(--shadow); }
+}
+.hidden { display:none; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">007</div>
-                <h1>Black Force 007</h1>
-            </div>
-            <p class="subtitle">কুইজ গেম ইঞ্জিন</p>
-        </header>
-
-        <main>
-            <!-- Start Screen -->
-            <section id="start-screen" class="screen active">
-                <div class="game-info">
-                    <h2>গেমে স্বাগতম, এজেন্ট</h2>
-                    <p>এই কুইজে আপনাকে সামাজিক নৈতিকতা, মূল্যবোধ এবং সমাজে প্রচলিত বিভিন্ন সমস্যা সম্পর্কিত প্রশ্নের উত্তর দিতে হবে।</p>
-                    <p>প্রতিটি প্রশ্নের জন্য চারটি বিকল্প থাকবে। সঠিক উত্তর নির্বাচন করে আপনার নৈতিক জ্ঞান পরীক্ষা করুন।</p>
-                    
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-questions">50</div>
-                            <div>মোট প্রশ্ন</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-time">10</div>
-                            <div>মিনিট (আনুমানিক)</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">70%</div>
-                            <div>পাসিং স্কোর</div>
-                        </div>
-                    </div>
-                    
-                    <p>গেমটি শেষে আপনি আপনার স্কোর এবং পারফরম্যান্স বিশ্লেষণ দেখতে পাবেন।</p>
-                </div>
-                
-                <button id="start-btn" class="btn pulse">কুইজ শুরু করুন</button>
-            </section>
-
-            <!-- Quiz Screen -->
-            <section id="quiz-screen" class="screen">
-                <div class="question-container">
-                    <div class="question-number">
-                        <span>প্রশ্ন <span id="current-question">1</span> / <span id="total-questions-display">50</span></span>
-                        <span>স্কোর: <span id="current-score">0</span></span>
-                        <span>সময়: <span id="timer">20</span> সেকেন্ড</span>
-                    </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress" id="progress-bar"></div>
-                    </div>
-                    
-                    <div class="question-text" id="question-text">
-                        প্রশ্ন লোড হচ্ছে...
-                    </div>
-                    
-                    <div class="options-container" id="options-container">
-                        <!-- Options will be dynamically added here -->
-                    </div>
-
-                    <div id="feedback" class="feedback"></div>
-                </div>
-            </section>
-
-            <!-- Result Screen -->
-            <section id="result-screen" class="screen">
-                <div class="result-card">
-                    <h2>কুইজ সম্পন্ন!</h2>
-                    <div class="score-display" id="final-score">0</div>
-                    <div class="score-text" id="score-text">আপনার স্কোর</div>
-                    
-                    <div class="performance-message" id="performance-message">
-                        আপনার পারফরম্যান্স বিশ্লেষণ করা হচ্ছে...
-                    </div>
-                    
-                    <div class="result-details">
-                        <div class="detail-card">
-                            <div class="detail-value" id="correct-answers">0</div>
-                            <div>মোট সঠিক উত্তর</div>
-                        </div>
-                        <div class="detail-card">
-                            <div class="detail-value" id="incorrect-answers">0</div>
-                            <div>মোট ভুল উত্তর</div>
-                        </div>
-                        <div class="detail-card">
-                            <div class="detail-value" id="best-score">0</div>
-                            <div>সেরা স্কোর</div>
-                        </div>
-                        <div class="detail-card">
-                            <div class="detail-value" id="percentage">0%</div>
-                            <div>সাফল্যের হার</div>
-                        </div>
-                    </div>
-                    
-                    <button id="restart-btn" class="btn">আবার খেলুন</button>
-                </div>
-            </section>
-        </main>
+<div class="container">
+  <h1>Quiz Game Engine</h1>
+  <p class="subtitle">Black Force 007</p>
+  <div id="start" class="card">
+    <p>তুমি কি প্রস্তুত তোমার জ্ঞান যাচাই করতে?</p>
+    <button id="startBtn">Start Game</button>
+  </div>
+  <div id="game" class="card hidden">
+    <div class="stats">
+      প্রশ্ন: <span id="current">1</span>/<span id="total">0</span> | স্কোর: <span id="score">0</span>
     </div>
+    <div id="question"></div>
+    <div id="options"></div>
+    <div class="timer"><div id="timerBar" class="timer-progress"></div></div>
+  </div>
+  <div id="result" class="card hidden">
+    <h2>গেম শেষ!</h2>
+    <p>সঠিক: <span id="correct"></span>, ভুল: <span id="wrong"></span></p>
+    <p>মোট স্কোর: <span id="finalScore"></span></p>
+    <p>Best Score: <span id="bestScore"></span></p>
+    <button id="replay">আবার খেলুন</button>
+  </div>
+</div>
 
-    <script src="script.js"></script>
+<script>
+const questions=[
+  {question:"সমাজে হিংসা কেন ক্ষতিকর?",options:["মানুষকে ভয় দেখায়","সম্পর্ক নষ্ট করে","শান্তি বিনষ্ট করে","অর্থনৈতিক ক্ষতি করে"],answer:"শান্তি বিনষ্ট করে"},
+  {question:"দালালি কি সৃষ্টি করে?",options:["দূর্নীতি বাড়ে","গণতন্ত্র শক্তিশালী হয়","শিক্ষা বৃদ্ধি পায়","ঐক্য বাড়ে"],answer:"দূর্নীতি বাড়ে"},
+  {question:"সৎ আচরণ সমাজে কী দেয়?",options:["অবজ্ঞা","বিশ্বাস ও স্থায়িত্ব","অবিচার","বিচ্ছেদ"],answer:"বিশ্বাস ও স্থায়িত্ব"},
+  {question:"অনলাইনে ভুল তথ্য শেয়ার করলে কী ঘটে?",options:["ত্রুটি কমায়","ভুল ধারণা বাড়ে","সত্যতা নিশ্চিত হয়","সম্পর্ক দৃঢ় হয়"],answer:"ভুল ধারণা বাড়ে"},
+  {question:"শিক্ষায় অনৈতিকতা রোধে প্রথম পদক্ষেপ কি?",options:["সৎ নীতির শিক্ষা","অজ্ঞতা","শাস্তি","দ্রুত প্রকাশনা"],answer:"সৎ নীতির শিক্ষা"}
+];
+
+const start=document.getElementById("start"),game=document.getElementById("game"),result=document.getElementById("result");
+const qText=document.getElementById("question"),optDiv=document.getElementById("options");
+const currentEl=document.getElementById("current"),totalEl=document.getElementById("total");
+const scoreEl=document.getElementById("score"),timerBar=document.getElementById("timerBar");
+const correctEl=document.getElementById("correct"),wrongEl=document.getElementById("wrong"),finalScoreEl=document.getElementById("finalScore"),bestScoreEl=document.getElementById("bestScore");
+
+let index=0,score=0,correct=0,wrong=0,timer, timeLeft=15;
+
+function startGame(){
+  start.classList.add("hidden"); game.classList.remove("hidden");
+  index=0;score=0;correct=0;wrong=0;
+  totalEl.textContent=questions.length;
+  showQuestion();
+}
+
+function showQuestion(){
+  if(index>=questions.length) return endGame();
+  const q=questions[index];
+  qText.innerHTML=q.question;
+  optDiv.innerHTML="";
+  currentEl.textContent=index+1;
+  q.options.forEach(opt=>{
+    const div=document.createElement("div");
+    div.className="option";
+    div.textContent=opt;
+    div.onclick=()=>selectOption(div,opt,q.answer);
+    optDiv.appendChild(div);
+  });
+  startTimer();
+}
+
+function selectOption(el,opt,ans){
+  stopTimer();
+  const options=document.querySelectorAll(".option");
+  options.forEach(o=>o.onclick=null);
+  if(opt===ans){
+    el.classList.add("correct");
+    score+=10; correct++;
+    playSound("correct");
+  } else {
+    el.classList.add("wrong");
+    wrong++;
+    playSound("wrong");
+  }
+  scoreEl.textContent=score;
+  setTimeout(()=>{index++;showQuestion();},1200);
+}
+
+function startTimer(){
+  clearInterval(timer); timeLeft=15; timerBar.style.width="100%";
+  timer=setInterval(()=>{
+    timeLeft--;
+    timerBar.style.width=(timeLeft/15*100)+"%";
+    if(timeLeft<=0){
+      stopTimer();
+      wrong++;index++;
+      playSound("click");
+      showQuestion();
+    }
+  },1000);
+}
+function stopTimer(){clearInterval(timer);}
+
+function endGame(){
+  game.classList.add("hidden"); result.classList.remove("hidden");
+  correctEl.textContent=correct; wrongEl.textContent=wrong; finalScoreEl.textContent=score;
+  let best=localStorage.getItem("bestScore")||0;
+  if(score>best){best=score; localStorage.setItem("bestScore",best);}
+  bestScoreEl.textContent=best;
+}
+
+function playSound(type){
+  let audio=new Audio("sounds/"+type+".mp3");
+  audio.play();
+}
+
+document.getElementById("startBtn").onclick=()=>{playSound("click");startGame();};
+document.getElementById("replay").onclick=()=>{playSound("click");result.classList.add("hidden");start.classList.remove("hidden");};
+</script>
 </body>
 </html>
